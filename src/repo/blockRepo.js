@@ -1,5 +1,4 @@
 module.exports = container => {
-  const redisHelper = container.resolve('redisHelper')
   const logger = container.resolve('logger')
   const { serverHelper } = container.resolve('config')
   const userKey = 'userInfo'
@@ -44,33 +43,17 @@ module.exports = container => {
       return {}
     }
   }
-  const setLanguageGuest = async (deviceId, langs) => {
-    const guest = await getGuestInfo(deviceId)
-    await redisHelper.hset(guestKey, deviceId, JSON.stringify({ ...guest, languages: langs }))
-    return await getGuestInfo(deviceId)
-  }
   const setLanguageUser = (uid, langs) => {
     return setUserData(uid, { languages: langs })
-  }
-  const isKick = async (token) => {
-    const user = serverHelper.decodeToken(token)
-    const { uid } = user
-    const hash = serverHelper.generateHash(token)
-    const key = `kickUser-${uid}-${hash}`
-    const block = await getUserInfo(uid)
-    const kick = await redisHelper.get(key)
-    return Boolean(block.isBlocked || kick)
   }
 
   return {
     blockUser,
     kickSession,
     removeBlockUser,
-    isKick,
     kickSessionById,
     getUserInfo,
     getGuestInfo,
-    setLanguageGuest,
     setLanguageUser,
     setUserData
   }

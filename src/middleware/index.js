@@ -4,34 +4,26 @@ module.exports = (container) => {
     serverHelper,
     httpCode
   } = container.resolve('config')
+  const { sessionRepo } = container.resolve('repo')
   const logger = container.resolve('logger')
-  const checkAccessToken = async (req, res, next) => {
-    try {
-      const token = req.headers['x-access-token'] || req.body.token
-      if (token) {
-        const user = await serverHelper.decodeToken(token)
-        if (user) {
-          req.user = user
-          return next()
-        }
-      }
-      return res.status(httpCode.UNAUTHORIZED).json({ msg: 'Bạn không có quyền thực hiện tác vụ này.' })
-    } catch (e) {
-      if (!e.message.includes('TokenExpiredError')) {
-        logger.e(e)
-      }
-      res.status(httpCode.TOKEN_EXPIRED).json({})
-    }
+  const verifyAccessToken = async (req, res, next) => {
+    return next()
   }
-  const verifyCMSToken = async (req, res, next) => {
+
+  async function verifyTokenCMS (req, res, next) {
     try {
       const token = req.headers['x-access-token'] || req.body.token
+      console.log('token', token)
+      console.log('internal', INTERNAL_TOKEN)
+      if (token === INTERNAL_TOKEN) {
+        return next()
+      }
       if (token) {
         const user = await serverHelper.decodeToken(token)
         const { path } = req
         const options = {
           headers: { 'x-access-token': token },
-          uri: process.env.AUTHORIZATION_CMS_URL || 'http://127.0.0.1:8004/authorization',
+          uri: process.env.AUTHORIZATION_CMS_URL || 'http://localhost:8004/authorization',
           method: 'POST',
           json: {
             userId: user._id,
@@ -56,9 +48,66 @@ module.exports = (container) => {
       }
       return res.status(httpCode.UNAUTHORIZED).json({ msg: 'Bạn không có quyền thực hiện tác vụ này.' })
     } catch (e) {
+      console.error((e.stack))
       if (!e.message.includes('TokenExpiredError')) {
         logger.e(e)
       }
+      res.status(httpCode.TOKEN_EXPIRED).json({})
+    }
+  }
+
+  const verifySession = async (req, res, next) => {
+    try {
+      const token = req.headers['x-access-token']
+      if (token) {
+        const user = (await serverHelper.verifyToken(token)) || {}
+        const { uid } = user
+        if (uid) {
+          const hash = serverHelper.generateHash(token)
+          const isValid = await sessionRepo.findOne({
+            uid,
+            hash
+          })
+          if (isValid) {
+            req.user = user
+            return next()
+          }
+        }
+        res.status(httpCode.UNAUTHORIZED).json({})
+      } else {
+        res.status(httpCode.UNAUTHORIZED).json({})
+      }
+    } catch (e) {
+      res.status(httpCode.UNKNOWN_ERROR).json({})
+    }
+  }
+
+  const verifyToken = async (req, res, next) => {
+    try {
+      // return next()
+      const token = req.headers['x-access-token'] || ''
+      const user = await serverHelper.verifyToken(token)
+      req.user = user
+      return next()
+    } catch (e) {
+      // logger.e(e)
+      res.status(httpCode.TOKEN_EXPIRED).json({})
+    }
+  }
+
+  const verifySignature = async (req, res, next) => {
+    try {
+      if (Object.keys(req.body).length) {
+        const isTrust = serverHelper.isTrustSignature(req.body)
+        if (isTrust) {
+          delete req.body.signature
+          return next()
+        }
+        return res.status(httpCode.SIGNATURE_ERROR).json({ msg: '?' })
+      }
+      return next()
+    } catch (e) {
+      // logger.e(e)
       res.status(httpCode.TOKEN_EXPIRED).json({})
     }
   }
@@ -70,5 +119,12 @@ module.exports = (container) => {
     }
     return next()
   }
-  return { verifyCMSToken, checkAccessToken, verifyInternalToken }
+  return {
+    verifyTokenCMS,
+    verifySession,
+    verifyAccessToken,
+    verifyToken,
+    verifySignature,
+    verifyInternalToken
+  }
 }

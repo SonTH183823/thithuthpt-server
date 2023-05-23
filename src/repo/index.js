@@ -1,9 +1,7 @@
 const repo = (container) => {
-  const pingRepo = require('./pingRepo')(container)
   const sessionRepo = require('./sessionRepo')(container)
   const userRepo = require('./userRepo')(container)
-  const blockRepo = require('./blockRepo')(container)
-  return { pingRepo, sessionRepo, userRepo, blockRepo }
+  return { sessionRepo, userRepo }
 }
 const connect = (container) => {
   const dbPool = container.resolve('db')

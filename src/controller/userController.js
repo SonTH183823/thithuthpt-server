@@ -1,21 +1,19 @@
-const {eventConfig} = require('../config')
 module.exports = container => {
   const firebaseAdmin = container.resolve('firebaseAdmin')
+  const i18n = container.resolve('i18n')
   const {
     userRepo,
     pingRepo,
     blockRepo,
-    sessionRepo,
-    historyRepo
+    sessionRepo
   } = container.resolve('repo')
   const logger = container.resolve('logger')
-  const {schemaValidator} = container.resolve('models')
+  const { schemaValidator } = container.resolve('models')
   const mediator = container.resolve('mediator')
   const {
     httpCode,
     serverHelper,
     loginType,
-    historyType,
     eventConfig,
     actionConfig
   } = container.resolve('config')
@@ -24,15 +22,15 @@ module.exports = container => {
     if (sessions.length === 0) {
       return
     }
-    await Promise.all(sessions.map(i => blockRepo.kickSessionById(i.uid, i.hash)))
-    await sessionRepo.removeSession({_id: {$in: sessions}})
+    // await Promise.all(sessions.map(i => blockRepo.kickSessionById(i.uid, i.hash)))
+    await sessionRepo.removeSession({ _id: { $in: sessions } })
   }
   const processLogin = async (obj) => {
     if (!obj.name && obj.fullname) {
       obj.name = obj.fullname
     }
     if (!obj.uid && obj.sub) obj.uid = obj.sub
-    let {
+    const {
       versionCode,
       fcmToken,
       name,
@@ -59,7 +57,7 @@ module.exports = container => {
     let hash = ''
     let isLogin = false
     let userResponse
-    const user = await userRepo.findOne({uid}).lean()
+    const user = await userRepo.findOne({ uid }).lean()
     if (user) {
       if (user.isLocked) {
         return user
@@ -73,20 +71,14 @@ module.exports = container => {
       if (avatar && !user.avatar) {
         update.avatar = avatar
       }
-      userResponse = await userRepo.findOneAndUpdate({uid}, {
+      userResponse = await userRepo.findOneAndUpdate({ uid }, {
         $set: {
           ...update,
           fcmToken
         }
-      }, {useFindAndModify: false})
+      }, { useFindAndModify: false })
     } else {
       console.log('ccdm dang ky', obj)
-      setTimeout(() => {
-        mediator.emit(eventConfig.USER_CHANGE, {
-          data,
-          action: actionConfig.CREATE
-        })
-      }, 1)
       userResponse = await userRepo.createUser({
         avatar,
         name,
@@ -109,10 +101,10 @@ module.exports = container => {
       versionCode,
       deviceType,
       deviceName,
-      loginType: loginType.USER,
+      loginType: loginType.USER
     })
     hash = serverHelper.generateHash(token)
-    const sessions = await sessionRepo.getSessionNoPaging({uid}, {_id: 1})
+    const sessions = await sessionRepo.getSessionNoPaging({ uid }, { _id: 1 })
     if (sessions.length >= MAX_DEVICE - 1) {
       const arr = []
       while (sessions.length > MAX_DEVICE - 1) {
@@ -124,7 +116,7 @@ module.exports = container => {
         console.log('logout ', name, uid, arr.length)
       }
     }
-    const {exp} = serverHelper.decodeToken(token)
+    const { exp } = serverHelper.decodeToken(token)
     sess.hash = hash
     sess.expireAt = exp
     await sessionRepo.createSession(sess)
@@ -137,7 +129,7 @@ module.exports = container => {
   }
   const checkLoginByDifferentMethod = async (oauthUser) => {
     if (oauthUser.email) {
-      let old = await userRepo.findOne({email: oauthUser.email})
+      let old = await userRepo.findOne({ email: oauthUser.email })
       if (old) {
         old = old.toObject()
         if (old.provider !== oauthUser.trustInfo.provider) {
@@ -163,7 +155,7 @@ module.exports = container => {
         versionCode
       } = sess
       if (serverHelper.canRefreshToken(expireAt)) {
-        const user = await userRepo.findOne({uid})
+        const user = await userRepo.findOne({ uid })
         if (user) {
           const token = serverHelper.genToken({
             uid,
@@ -176,7 +168,7 @@ module.exports = container => {
             loginType: loginType.USER
           })
           const hash = serverHelper.generateHash(token)
-          const {exp} = serverHelper.decodeToken(token)
+          const { exp } = serverHelper.decodeToken(token)
           sess.hash = hash
           sess.expireAt = exp
           sess.updateAt = Math.floor(Date.now() / 1000)
@@ -192,35 +184,35 @@ module.exports = container => {
         } else {
           return {
             ok: false,
-            data: {msg: i18n.re_login}
+            data: { msg: i18n.re_login }
           }
         }
       } else {
         return {
           ok: false,
-          data: {msg: i18n.re_login}
+          data: { msg: i18n.re_login }
         }
       }
     } else {
       return {
         ok: false,
-        data: {msg: i18n.session_not_found}
+        data: { msg: i18n.session_not_found }
       }
     }
   }
 
   const verifyFirebase = async (body) => {
     try {
-      const {token, method, code, domain} = body
+      const { token, method } = body
       const decodeUser = await firebaseAdmin.auth().verifyIdToken(token.trim())
       // const {}
       decodeUser.trustInfo = {
         method, provider: decodeUser.firebase.sign_in_provider
       }
       decodeUser.thirdPartyData = decodeUser.firebase
-      return {data: decodeUser}
+      return { data: decodeUser }
     } catch (e) {
-      return {msg: e.message}
+      return { msg: e.message }
     }
   }
   const loginOrRegister = async (req, res) => {
@@ -241,24 +233,24 @@ module.exports = container => {
         code,
         domain
       } = value
-      const {data: decodeUser, msg} = await verifyFirebase({token, method, code, domain})
+      const { data: decodeUser, msg } = await verifyFirebase({ token, method, code, domain })
       console.log('decodeUser&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&', decodeUser)
       if (msg) {
-        return res.status(httpCode.BAD_REQUEST).json({msg})
+        return res.status(httpCode.BAD_REQUEST).json({ msg })
       }
       if (+process.env.DEBUG_USER_LOGIN) {
         logger.d('User logged in', decodeUser)
       }
       const msgOldEmail = await checkLoginByDifferentMethod(decodeUser)
       if (msgOldEmail) {
-        return res.status(httpCode.BAD_REQUEST).json({msg: msgOldEmail})
+        return res.status(httpCode.BAD_REQUEST).json({ msg: msgOldEmail })
       }
-      const user = await processLogin({...value, ...decodeUser})
+      const user = await processLogin({ ...value, ...decodeUser })
       if (!user) {
         return res.status(httpCode.BAD_REQUEST).json('co loi xay ra trong qua trinh dang nhap')
       }
       if (user.isLocked) {
-        return res.status(httpCode.USER_BLOCK).json({msg: 'User bi khoa'})
+        return res.status(httpCode.USER_BLOCK).json({ msg: 'User bi khoa' })
       }
       res.status(user.isLogin ? httpCode.SUCCESS : httpCode.CREATED).json(user)
     } catch (e) {
@@ -283,7 +275,7 @@ module.exports = container => {
         avatar,
         about
       } = req.body
-      const {uid} = req.user
+      const { uid } = req.user
       if (!uid || Object.keys(req.body).length === 0) {
         return res.status(httpCode.BAD_REQUEST).json({})
       }
@@ -297,7 +289,7 @@ module.exports = container => {
       if (about) {
         update.about = about
       }
-      const user = await userRepo.updateUserByUid({uid}, update)
+      const user = await userRepo.updateUserByUid({ uid }, update)
       setTimeout(() => {
         mediator.emit(eventConfig.USER_CHANGE, {
           uid,
@@ -320,13 +312,13 @@ module.exports = container => {
       if (token) {
         const user = serverHelper.decodeToken(token)
         if (!user) {
-          res.status(httpCode.UNAUTHORIZED).json({ok: false})
+          res.status(httpCode.UNAUTHORIZED).json({ ok: false })
         }
         if (user.loginType !== loginType.USER) {
           const {
             deviceType,
             deviceId,
-            versionCode,
+            versionCode
           } = user
           const token = serverHelper.genToken({
             deviceType,
@@ -334,7 +326,7 @@ module.exports = container => {
             deviceId,
             loginType: loginType.GUEST
           })
-          return res.status(httpCode.SUCCESS).json({token})
+          return res.status(httpCode.SUCCESS).json({ token })
         }
         const {
           ok,
@@ -344,17 +336,17 @@ module.exports = container => {
           return res.status(httpCode.SUCCESS).json(data)
         }
       }
-      res.status(httpCode.UNAUTHORIZED).json({ok: false})
+      res.status(httpCode.UNAUTHORIZED).json({ ok: false })
     } catch (e) {
       logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ok: false})
+      res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
   const verifyToken = async (req, res) => {
     try {
       const token = req.headers['x-access-token']
       if (token) {
-        const {uid} = (await serverHelper.verifyToken(token)) || {}
+        const { uid } = (await serverHelper.verifyToken(token)) || {}
         if (uid) {
           const hash = serverHelper.generateHash(token)
           const sess = await sessionRepo.findOne({
@@ -378,35 +370,35 @@ module.exports = container => {
       return res.status(httpCode.SUCCESS).json({})
     }
     const decode = serverHelper.decodeToken(token)
-    const {uid} = decode
+    const { uid } = decode
     const user = await blockRepo.getUserInfo(uid)
-    res.status(httpCode.SUCCESS).json({user})
+    res.status(httpCode.SUCCESS).json({ user })
   }
   const getUserDetail = async (req, res) => {
     try {
       const token = req.headers['x-access-token']
       if (token) {
-        const {uid} = (await serverHelper.verifyToken(token)) || {}
+        const { uid } = (await serverHelper.verifyToken(token)) || {}
         if (!uid) {
           return res.status(httpCode.UNAUTHORIZED).json({})
         }
-        const user = await userRepo.findOne({uid})
+        const user = await userRepo.findOne({ uid })
         if (user) {
           const u = user.toObject()
           delete u.password
           u.avatar = serverHelper.getAvatar(u.avatar, u.provider)
           return res.status(httpCode.SUCCESS).json(u)
         }
-        return res.status(httpCode.UNAUTHORIZED).json({msg: 'UNAUTHORIZED user'})
+        return res.status(httpCode.UNAUTHORIZED).json({ msg: 'UNAUTHORIZED user' })
       } else {
-        res.status(httpCode.BAD_REQUEST).json({ok: false})
+        res.status(httpCode.BAD_REQUEST).json({ ok: false })
       }
     } catch (e) {
       if (e.message.includes('TokenExpiredError')) {
         return res.status(httpCode.TOKEN_EXPIRED).json({})
       }
       logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ok: false})
+      res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
   const getListUserByIds = async (req, res) => {
@@ -416,10 +408,10 @@ module.exports = container => {
         res.status(httpCode.BAD_REQUEST).json({})
       }
       const users = await userRepo.getListUserByIds(ids)
-      res.status(httpCode.SUCCESS).json({data: users})
+      res.status(httpCode.SUCCESS).json({ data: users })
     } catch (e) {
       logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ok: false})
+      res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
   const enterGuest = async (req, res) => {
@@ -445,10 +437,10 @@ module.exports = container => {
         deviceId,
         loginType: loginType.GUEST
       })
-      res.status(httpCode.SUCCESS).json({token})
+      res.status(httpCode.SUCCESS).json({ token })
     } catch (e) {
       logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ok: false})
+      res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
   const logout = async (req, res) => {
@@ -456,17 +448,17 @@ module.exports = container => {
       const token = req.headers['x-access-token']
       const user = serverHelper.decodeToken(token)
       if (user && user.loginType === loginType.USER) {
-        const {uid} = user
+        const { uid } = user
         const hash = serverHelper.generateHash(token)
-        const r = await sessionRepo.removeSession({
+        await sessionRepo.removeSession({
           uid,
           hash
         })
       }
-      res.status(httpCode.SUCCESS).json({})
+      res.status(httpCode.SUCCESS).json({ ok: true })
     } catch (e) {
       logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ok: false})
+      res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
   const ping = async (req, res) => {
@@ -478,14 +470,14 @@ module.exports = container => {
         if (!user) {
           return res.status(httpCode.FORBIDDEN).json({})
         }
-        const {exp} = user
+        const { exp } = user
         if (now > exp) {
           return res.status(httpCode.TOKEN_EXPIRED).json({})
         }
         if (user.loginType === loginType.USER) {
           const isKick = await blockRepo.isKick(token)
           if (isKick) {
-            return res.status(httpCode.UNAUTHORIZED).json({msg: i18n.kick})
+            return res.status(httpCode.UNAUTHORIZED).json({ msg: i18n.kick })
           }
           // await blockRepo.setUserData(user.uid, { lastPing: now })
           await pingRepo.saveLastPing(user.uid, user.deviceType, user.loginType)
@@ -497,12 +489,12 @@ module.exports = container => {
       }
     } catch (e) {
       logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ok: false})
+      res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
   const addFCMToken = async (req, res) => {
     try {
-      const {fcmToken} = req.body
+      const { fcmToken } = req.body
       if (!fcmToken) {
         return res.status(httpCode.BAD_REQUEST).json({})
       }
@@ -512,20 +504,20 @@ module.exports = container => {
         deviceId,
         deviceType
       } = user
-      const {statusCode} = await oAuthHelper.updateTopic({
+      const { statusCode } = await oAuthHelper.updateTopic({
         fcmToken,
         deviceType
       })
       if (statusCode !== httpCode.SUCCESS) return res.status(httpCode.BAD_REQUEST).json({})
       if (user.loginType === loginType.GUEST) {
         await sessionRepo.updateSessionByCondition({
-          uid: {$exists: false},
+          uid: { $exists: false },
           deviceId
         }, {
           fcmToken,
           deviceType,
           updatedAt: Math.floor(Date.now() / 1000)
-        }, {upsert: true})
+        }, { upsert: true })
       } else {
         await sessionRepo.updateSessionByCondition({
           uid,
@@ -533,9 +525,9 @@ module.exports = container => {
         }, {
           fcmToken,
           updatedAt: Math.floor(Date.now() / 1000)
-        }, {upsert: true})
+        }, { upsert: true })
       }
-      res.status(httpCode.SUCCESS).json({ok: true})
+      res.status(httpCode.SUCCESS).json({ ok: true })
     } catch (e) {
       logger.e(e)
       res.status(httpCode.UNKNOWN_ERROR).json({})
@@ -544,7 +536,6 @@ module.exports = container => {
   return {
     addFCMToken,
     loginOrRegister,
-    loginFromSuperApp,
     refreshToken,
     ping,
     getUserDetail,
