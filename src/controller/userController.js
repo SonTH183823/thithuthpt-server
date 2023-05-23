@@ -78,7 +78,7 @@ module.exports = container => {
         }
       }, { useFindAndModify: false })
     } else {
-      console.log('ccdm dang ky', obj)
+      console.log(' dang ky', obj)
       userResponse = await userRepo.createUser({
         avatar,
         name,
@@ -279,7 +279,7 @@ module.exports = container => {
       if (!uid || Object.keys(req.body).length === 0) {
         return res.status(httpCode.BAD_REQUEST).json({})
       }
-      const update = {}
+      const update = req.body
       if (name) {
         update.name = name
       }
@@ -290,12 +290,6 @@ module.exports = container => {
         update.about = about
       }
       const user = await userRepo.updateUserByUid({ uid }, update)
-      setTimeout(() => {
-        mediator.emit(eventConfig.USER_CHANGE, {
-          uid,
-          action: actionConfig.UPDATE
-        })
-      }, 1)
       res.status(httpCode.SUCCESS).json({
         ok: true,
         user
@@ -492,49 +486,7 @@ module.exports = container => {
       res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
-  const addFCMToken = async (req, res) => {
-    try {
-      const { fcmToken } = req.body
-      if (!fcmToken) {
-        return res.status(httpCode.BAD_REQUEST).json({})
-      }
-      const user = req.user
-      const {
-        uid,
-        deviceId,
-        deviceType
-      } = user
-      const { statusCode } = await oAuthHelper.updateTopic({
-        fcmToken,
-        deviceType
-      })
-      if (statusCode !== httpCode.SUCCESS) return res.status(httpCode.BAD_REQUEST).json({})
-      if (user.loginType === loginType.GUEST) {
-        await sessionRepo.updateSessionByCondition({
-          uid: { $exists: false },
-          deviceId
-        }, {
-          fcmToken,
-          deviceType,
-          updatedAt: Math.floor(Date.now() / 1000)
-        }, { upsert: true })
-      } else {
-        await sessionRepo.updateSessionByCondition({
-          uid,
-          deviceId
-        }, {
-          fcmToken,
-          updatedAt: Math.floor(Date.now() / 1000)
-        }, { upsert: true })
-      }
-      res.status(httpCode.SUCCESS).json({ ok: true })
-    } catch (e) {
-      logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({})
-    }
-  }
   return {
-    addFCMToken,
     loginOrRegister,
     refreshToken,
     ping,
@@ -544,6 +496,6 @@ module.exports = container => {
     verifyToken,
     getListUserByIds,
     getUserFromCache,
-    updateSelfInfo,
+    updateSelfInfo
   }
 }

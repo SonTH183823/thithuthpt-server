@@ -11,6 +11,7 @@ module.exports = (joi, mongoose) => {
     phoneNumber: { type: String },
     provider: { type: String },
     about: { type: String, allow: '' },
+    address: { type: String, allow: '' }
   })
   return mongoose.model('user', userSchema)
 }
