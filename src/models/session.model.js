@@ -3,7 +3,6 @@ module.exports = (joi, mongoose) => {
     createdAt: { type: Number, default: () => Math.floor(Date.now() / 1000) },
     authTime: { type: Number },
     uid: { type: String, index: true },
-    deviceId: { type: String, index: true },
     hash: { type: String, index: true },
     expireAt: { type: Number },
     deviceName: { type: String },

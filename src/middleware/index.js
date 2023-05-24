@@ -86,25 +86,7 @@ module.exports = (container) => {
     try {
       // return next()
       const token = req.headers['x-access-token'] || ''
-      const user = await serverHelper.verifyToken(token)
-      req.user = user
-      return next()
-    } catch (e) {
-      // logger.e(e)
-      res.status(httpCode.TOKEN_EXPIRED).json({})
-    }
-  }
-
-  const verifySignature = async (req, res, next) => {
-    try {
-      if (Object.keys(req.body).length) {
-        const isTrust = serverHelper.isTrustSignature(req.body)
-        if (isTrust) {
-          delete req.body.signature
-          return next()
-        }
-        return res.status(httpCode.SIGNATURE_ERROR).json({ msg: '?' })
-      }
+      req.user = await serverHelper.verifyToken(token)
       return next()
     } catch (e) {
       // logger.e(e)
@@ -119,12 +101,12 @@ module.exports = (container) => {
     }
     return next()
   }
+
   return {
     verifyTokenCMS,
     verifySession,
     verifyAccessToken,
     verifyToken,
-    verifySignature,
     verifyInternalToken
   }
 }

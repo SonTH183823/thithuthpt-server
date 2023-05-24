@@ -7,7 +7,6 @@ module.exports = (app, container) => {
   const { basePath } = serverSettings
 
   app.post(`${basePath}/login`, userController.loginOrRegister)
-  app.post(`${basePath}/enterGuest`, userController.enterGuest)
   app.get(`${basePath}/detailCache`, userController.getUserFromCache)
   app.use(verifyToken)
   app.get(`${basePath}/ping`, userController.ping)

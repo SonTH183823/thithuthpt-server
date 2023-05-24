@@ -13,9 +13,7 @@ module.exports = container => {
   const {
     httpCode,
     serverHelper,
-    loginType,
-    eventConfig,
-    actionConfig
+    loginType
   } = container.resolve('config')
   const MAX_DEVICE = +process.env.MAX_DEVICE || 3
   const kickSessions = async (uid, sessions) => {
@@ -41,14 +39,10 @@ module.exports = container => {
       trustInfo,
       phone_number: phoneNumber,
       uid,
-      deviceType,
-      deviceId,
       username
     } = obj
     const sess = {
       uid,
-      deviceType,
-      deviceId,
       authTime,
       versionCode,
       deviceName
@@ -94,13 +88,9 @@ module.exports = container => {
     token = serverHelper.genToken({
       uid,
       fcmToken,
-      deviceId,
       name,
       username,
       avatar,
-      versionCode,
-      deviceType,
-      deviceName,
       loginType: loginType.USER
     })
     hash = serverHelper.generateHash(token)
@@ -110,7 +100,6 @@ module.exports = container => {
       while (sessions.length > MAX_DEVICE - 1) {
         arr.push(sessions.shift())
       }
-      console.log('.....................................kickSession webview ko bi loi')
       if (arr.length) {
         await kickSessions(uid, arr)
         console.log('logout ', name, uid, arr.length)
@@ -149,22 +138,14 @@ module.exports = container => {
       const {
         expireAt,
         uid,
-        deviceName,
-        deviceId,
-        deviceType,
-        versionCode
       } = sess
       if (serverHelper.canRefreshToken(expireAt)) {
         const user = await userRepo.findOne({ uid })
         if (user) {
           const token = serverHelper.genToken({
             uid,
-            deviceName,
-            deviceId,
-            versionCode,
             name: user.name,
             avatar: user.avatar,
-            deviceType,
             loginType: loginType.USER
           })
           const hash = serverHelper.generateHash(token)
@@ -308,20 +289,6 @@ module.exports = container => {
         if (!user) {
           res.status(httpCode.UNAUTHORIZED).json({ ok: false })
         }
-        if (user.loginType !== loginType.USER) {
-          const {
-            deviceType,
-            deviceId,
-            versionCode
-          } = user
-          const token = serverHelper.genToken({
-            deviceType,
-            versionCode,
-            deviceId,
-            loginType: loginType.GUEST
-          })
-          return res.status(httpCode.SUCCESS).json({ token })
-        }
         const {
           ok,
           data
@@ -408,35 +375,6 @@ module.exports = container => {
       res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
-  const enterGuest = async (req, res) => {
-    try {
-      const {
-        error,
-        value
-      } = schemaValidator(req.body, 'EnterGuest')
-      if (error) {
-        return res.status(httpCode.BAD_REQUEST).json({
-          ok: false,
-          msg: error.toString()
-        })
-      }
-      const {
-        deviceType,
-        deviceId,
-        versionCode
-      } = value
-      const token = serverHelper.genToken({
-        deviceType,
-        versionCode,
-        deviceId,
-        loginType: loginType.GUEST
-      })
-      res.status(httpCode.SUCCESS).json({ token })
-    } catch (e) {
-      logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
-    }
-  }
   const logout = async (req, res) => {
     try {
       const token = req.headers['x-access-token']
@@ -474,9 +412,9 @@ module.exports = container => {
             return res.status(httpCode.UNAUTHORIZED).json({ msg: i18n.kick })
           }
           // await blockRepo.setUserData(user.uid, { lastPing: now })
-          await pingRepo.saveLastPing(user.uid, user.deviceType, user.loginType)
+          await pingRepo.saveLastPing(user.uid, user.loginType)
         }
-        await pingRepo.saveLastPing(user.deviceId, user.deviceType, user.loginType)
+        await pingRepo.saveLastPing(user.deviceId, user.loginType)
         res.status(httpCode.SUCCESS).json({})
       } else {
         res.status(httpCode.UNAUTHORIZED).json({})
@@ -491,7 +429,6 @@ module.exports = container => {
     refreshToken,
     ping,
     getUserDetail,
-    enterGuest,
     logout,
     verifyToken,
     getListUserByIds,
