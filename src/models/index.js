@@ -42,17 +42,28 @@ module.exports = container => {
   const SessionCMS = require('./userCMS/sessionCMS.model')(joi, mongoose)
   const schemas = {
     mongoose: {
-      User, Session, Ping, UserCMS, SessionCMS
+      User, Session, Ping
     },
     joi: { Login },
     News,
     Category,
-    Tag
+    Tag,
+    UserCMS,
+    SessionCMS
   }
   const schemaValidator = (obj, type) => {
-    const schema = schemas.joi[type]
+    if (type === 'Login') {
+      const schema = schemas.joi[type]
+      if (schema) {
+        return schema.validate(obj, {
+          allowUnknown: true
+        })
+      }
+      return { error: `${type} not found.` }
+    }
+    const schema = schemas[type]
     if (schema) {
-      return schema.validate(obj, {
+      return schema.validateObj(obj, {
         allowUnknown: true
       })
     }

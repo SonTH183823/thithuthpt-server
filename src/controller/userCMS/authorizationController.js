@@ -5,12 +5,6 @@ module.exports = (container) => {
   } = container.resolve('config')
   const logger = container.resolve('logger')
   const { userRepo } = container.resolve('repo')
-  const reqPerMap = {
-    GET: 'read',
-    POST: 'create',
-    PUT: 'update',
-    DELETE: 'delete'
-  }
   const authorization = async (req, res) => {
     try {
       const token = req.headers['x-access-token']
@@ -18,7 +12,6 @@ module.exports = (container) => {
         userId,
         method
       } = req.body
-      const reqPer = reqPerMap[method]
       const path = req.body.path.toLowerCase()
       console.log('path', path)
       if (token) {
@@ -37,25 +30,6 @@ module.exports = (container) => {
               return res.status(httpCode.SUCCESS).json({
                 ok: true,
                 user: u
-              })
-            }
-            const permissions = serverHelper.getAllPermissionOfUser(u)
-            console.log('keyy', Object.keys(permissions))
-            let havePermission = false
-            Object.keys(permissions).forEach(key => {
-              if ((key === path || path.startsWith(key)) && permissions[key] && permissions[key][reqPer]) {
-                havePermission = true
-              }
-            })
-            console.log('havePermission', havePermission)
-            if (havePermission) {
-              const menus = serverHelper.getAllPermissionOfUser(u)
-              delete u.roles
-              delete u.groups
-              return res.status(httpCode.SUCCESS).json({
-                ok: true,
-                user: u,
-                menus
               })
             }
             return res.status(httpCode.SUCCESS).json({

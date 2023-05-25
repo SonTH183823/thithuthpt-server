@@ -1,6 +1,6 @@
 module.exports = container => {
   const { schemas } = container.resolve('models')
-  const { SessionCMS } = schemas.mongoose
+  const { SessionCMS } = schemas
   const addSessionCMS = (hash, userId, expireAt) => {
     const sess = new SessionCMS({ hash, userId, expireAt })
     return sess.save()

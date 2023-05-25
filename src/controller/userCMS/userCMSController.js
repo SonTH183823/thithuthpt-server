@@ -1,5 +1,6 @@
 module.exports = (container) => {
   const { schemaValidator, schemas: { UserCMS } } = container.resolve('models')
+  const roleConfig = UserCMS.getRoleConfig()
   const {
     httpCode,
     serverHelper
@@ -11,11 +12,12 @@ module.exports = (container) => {
     sessionCMSRepo
   } = container.resolve('repo')
 
-  userCMSRepo.addUserCMS({
-    username: 'admin',
-    isAdministrator: 1,
-    password: serverHelper.encryptPassword('123456')
-  }).catch(() => {})
+  // userCMSRepo.addUserCMS({
+  //   username: 'admin',
+  //   isAdministrator: 1,
+  //   name: 'Tô Hoài Sơn',
+  //   password: serverHelper.encryptPassword('123456')
+  // }).catch(() => {})
 
   const MAX_LOGIN = +process.env.MAX_LOGIN || 2
   const addUserCMS = async (req, res) => {
@@ -71,16 +73,13 @@ module.exports = (container) => {
           const token = serverHelper.genToken(u)
           const { exp } = serverHelper.decodeToken(token)
           await sessionCMSRepo.addSessionCMS(serverHelper.generateHash(token), u._id, exp)
-          const uDb = await userCMSRepo.getUserCMSById(String(u._id))
-          const menus = serverHelper.getAllPermissionOfUser(uDb.toObject())
           const allSess = await sessionCMSRepo.getSessionCMS({ userCMSId: String(u._id) })
           while (allSess.length > MAX_LOGIN) {
             await sessionCMSRepo.removeSessionCMSById(String((allSess.pop())._id))
           }
           return res.status(httpCode.SUCCESS).json({
             ...u,
-            token,
-            menus
+            token
           })
         }
         res.status(httpCode.BAD_REQUEST).json({ msg: 'Tên tài khoản hoặc mật khẩu không đúng.' })
@@ -178,10 +177,6 @@ module.exports = (container) => {
       delete body.username
       delete body.groups
       delete body.password
-      delete body.roleEmail
-      delete body.under
-      delete body.unit
-      delete body.readonly
       const u = await userCMSRepo.updateUserCMS(req.userCMS._id, body)
       res.status(httpCode.SUCCESS).json({
         ok: true,
@@ -196,6 +191,10 @@ module.exports = (container) => {
     try {
       const { id } = req.params
       const body = req.body
+      if (req.body.isAdministrator) {
+        delete body.roles
+        body.roles = Object.values(roleConfig)
+      }
       if (id && body) {
         const {
           error,

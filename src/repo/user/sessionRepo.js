@@ -1,9 +1,5 @@
 module.exports = container => {
   const { schemas } = container.resolve('models')
-  const {
-    serverHelper,
-    tokenTime
-  } = container.resolve('config')
   const { Session } = schemas.mongoose
   const createSession = (data) => {
     const n = new Session(data)

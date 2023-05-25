@@ -1,6 +1,6 @@
 module.exports = container => {
   const { schemas } = container.resolve('models')
-  const { UserCMS } = schemas.mongoose
+  const { UserCMS } = schemas
   const addUserCMS = (u) => {
     const user = new UserCMS(u)
     return user.save()
@@ -16,26 +16,7 @@ module.exports = container => {
     }).select('-password  -roles -groups')
   }
   const getUserCMSById = (id) => {
-    return UserCMS.findById(id).populate({
-      path: 'roles',
-      populate: {
-        path: 'permissions',
-        populate: {
-          path: 'resources'
-        }
-      }
-    }).populate({
-      path: 'groups',
-      populate: {
-        path: 'roles',
-        populate: {
-          path: 'permissions',
-          populate: {
-            path: 'resources'
-          }
-        }
-      }
-    }).select('-password')
+    return UserCMS.findById(id)
   }
   const getUserCMSByUserCMSname = username => {
     return UserCMS.findOne({ username }).select('-password')
