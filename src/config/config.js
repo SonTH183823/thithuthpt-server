@@ -95,6 +95,92 @@ const serverHelper = function () {
     return Math.floor(lower + (Math.random() * (upper - lower + 1)))
   }
 
+  function getAllPermissionOfUser (user) {
+    const allPermissionOfUser = {}
+    const {
+      roles,
+      groups
+    } = user;
+    (roles || []).forEach(role => {
+      const { permissions } = role
+      permissions.forEach(per => {
+        const {
+          resources,
+          create,
+          read,
+          delete: deletePer,
+          update
+        } = per;
+        (resources || []).forEach(re => {
+          const path = re.path.toLowerCase()
+          if (!allPermissionOfUser[path]) {
+            allPermissionOfUser[path] = {
+              create,
+              read,
+              update,
+              delete: deletePer
+            }
+          } else {
+            if (create) {
+              allPermissionOfUser[path].create = create
+            }
+            if (read) {
+              allPermissionOfUser[path].read = read
+            }
+            if (update) {
+              allPermissionOfUser[path].update = update
+            }
+            if (deletePer) {
+              allPermissionOfUser[path].delete = deletePer
+            }
+          }
+        })
+      })
+    });
+    (groups || []).forEach(group => {
+      const { roles: groupRoles } = group;
+      (groupRoles || []).forEach(role => {
+        (roles || []).forEach(role => {
+          const { permissions } = role
+          permissions.forEach(per => {
+            const { resources } = per
+            resources.forEach(re => {
+              const {
+                create,
+                read,
+                delete: deletePer,
+                update
+              } = re
+              const path = re.path.toLowerCase()
+              if (!allPermissionOfUser[path]) {
+                allPermissionOfUser[path] = {
+                  create,
+                  read,
+                  update,
+                  delete: deletePer
+                }
+              } else {
+                if (create) {
+                  allPermissionOfUser[path].create = create
+                }
+                if (read) {
+                  allPermissionOfUser[path].read = read
+                }
+                if (update) {
+                  allPermissionOfUser[path].update = update
+                }
+                if (deletePer) {
+                  allPermissionOfUser[path].delete = deletePer
+                }
+              }
+            })
+          })
+        })
+      })
+    })
+    return allPermissionOfUser
+  }
+
   function generateHash (str) {
     return crypto.createHash('md5').update(str).digest('hex')
   }
@@ -145,6 +231,10 @@ const serverHelper = function () {
     const re = /([[\\^$.|?*+()])/g
     return new RegExp(str.replace(re, '\\$1'), 'gi')
   }
+  function encryptPassword (password) {
+    return crypto.createHash('sha256').update(password, 'binary').digest('base64')
+  }
+
 
   function stringToSlugSearch (str) {
     const from = 'àáãảạăằắẳẵặâầấẩẫậèéẻẽẹêềếểễệđùúủũụưừứửữựòóỏõọôồốổỗộơờớởỡợìíỉĩịäëïîöüûñçýỳỹỵỷ'
@@ -284,8 +374,11 @@ const serverHelper = function () {
     stringToSnakeCase,
     handleDataBeforeCache,
     stringToSlug,
+    encryptPassword,
     stringToSlugSearch,
-    deepCompare
+    deepCompare,
+    getAllPermissionOfUser,
+    getRandomInt
   }
 }
 module.exports = {

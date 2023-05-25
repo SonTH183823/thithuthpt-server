@@ -31,16 +31,18 @@ const joi2MongoSchema = (joiSchema, special = {}, schemaOnly = {}, joiOnly = {})
 
 module.exports = container => {
   container.registerValue('ObjectId', mongoose.Types.ObjectId)
-  const User = require('./user.model')(joi, mongoose)
-  const Ping = require('./ping.model')(joi, mongoose)
+  const User = require('./user/user.model')(joi, mongoose)
+  const Ping = require('./user/ping.model')(joi, mongoose)
   const Login = require('./joi/login.model')(joi)
-  const Session = require('./session.model')(joi, mongoose)
+  const Session = require('./user/session.model')(joi, mongoose)
   const Category = require('./news/category.model')(joi, mongoose, { joi2MongoSchema })
   const News = require('./news/news.model')(joi, mongoose, { joi2MongoSchema })
   const Tag = require('./news/tag.model')(joi, mongoose, { joi2MongoSchema })
+  const UserCMS = require('./userCMS/userCMS.model')(joi, mongoose)
+  const SessionCMS = require('./userCMS/sessionCMS.model')(joi, mongoose)
   const schemas = {
     mongoose: {
-      User, Session, Ping
+      User, Session, Ping, UserCMS, SessionCMS
     },
     joi: { Login },
     News,

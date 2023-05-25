@@ -40,7 +40,7 @@ module.exports = (container) => {
           if (userAuthorization.readonly && req.method !== 'GET') {
             return res.status(httpCode.BAD_REQUEST).json({ msg: 'Bạn chỉ có quyền xem thông tin, không thể thực hiện được thao tác này.' })
           }
-          req.user = userAuthorization
+          req.userCMS = userAuthorization
           return next()
         } else {
           return res.status(httpCode.BAD_REQUEST).json({ msg: msg || 'Bạn không có quyền thực hiện tác vụ này.' })
@@ -69,7 +69,7 @@ module.exports = (container) => {
             hash
           })
           if (isValid) {
-            req.user = user
+            req.userCMS = user
             return next()
           }
         }
@@ -86,7 +86,7 @@ module.exports = (container) => {
     try {
       // return next()
       const token = req.headers['x-access-token'] || ''
-      req.user = await serverHelper.verifyToken(token)
+      req.userCMS = await serverHelper.verifyToken(token)
       return next()
     } catch (e) {
       // logger.e(e)

@@ -1,6 +1,7 @@
 module.exports = (app, container) => {
-  require('./userApi')(app, container)
-  require('./newsApi')(app, container)
-  require('./categoryApi')(app, container)
-  require('./tagApi')(app, container)
+  require('./user/userApi')(app, container)
+  require('./news/newsApi')(app, container)
+  require('./news/categoryApi')(app, container)
+  require('./news/tagApi')(app, container)
+  require('./userCMS/userCMSApi')(app, container)
 }
