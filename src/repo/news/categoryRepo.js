@@ -30,7 +30,7 @@ module.exports = container => {
     return Category.aggregate(pipe)
   }
   const getCategory = (pipe, limit, skip, sort) => {
-    return Category.find(pipe).limit(limit).skip(skip).sort(sort)
+    return Category.find(pipe).limit(limit).skip(skip).sort(sort).populate('createdBy', '-password')
   }
   const getCategoryNoPaging = (pipe) => {
     return Category.find(pipe)

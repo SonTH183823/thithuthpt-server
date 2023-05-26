@@ -44,6 +44,9 @@ module.exports = container => {
   const getListUserByIds = async (ids) => {
     return await User.find({ uid: { $in: ids } }).select({ password: 0 })
   }
+  const getAllUsers = async (pipe) => {
+    return User.find(pipe)
+  }
   const updateUserByUid = (pipe, n) => {
     return User.findOneAndUpdate(pipe, n, {
       useFindAndModify: false,
@@ -64,6 +67,7 @@ module.exports = container => {
     findOne,
     findOneAndUpdate,
     getListUserByIds,
-    updateUserByUid
+    updateUserByUid,
+    getAllUsers
   }
 }

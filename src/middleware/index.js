@@ -93,20 +93,12 @@ module.exports = (container) => {
       res.status(httpCode.TOKEN_EXPIRED).json({})
     }
   }
-  const INTERNAL_TOKEN = process.env.INTERNAL_TOKEN || '123'
-  const verifyInternalToken = async (req, res, next) => {
-    const token = req.headers['x-access-token']
-    if (token !== INTERNAL_TOKEN) {
-      return res.status(httpCode.BAD_REQUEST).json({ msg: 'Bạn không có quyền thực hiện tác vụ này!' })
-    }
-    return next()
-  }
+
 
   return {
     verifyTokenCMS,
     verifySession,
     verifyAccessToken,
-    verifyToken,
-    verifyInternalToken
+    verifyToken
   }
 }

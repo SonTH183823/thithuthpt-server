@@ -13,7 +13,7 @@ module.exports = container => {
       username,
       password,
       activated: 1
-    }).select('-password  -roles -groups')
+    }).select('-password')
   }
   const getUserCMSById = (id) => {
     return UserCMS.findById(id)

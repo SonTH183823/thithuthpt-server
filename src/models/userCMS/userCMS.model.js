@@ -3,7 +3,8 @@ const roleConfig = {
   DOCUMENTS: 2,
   TOEIC: 3,
   EXAMTEST: 4,
-  INTRODUCTION: 5
+  INTRODUCTION: 5,
+  ADMIN: 6
 }
 
 module.exports = (joi, mongoose) => {

@@ -2,6 +2,7 @@ module.exports = (joi, mongoose, {
   joi2MongoSchema,
   schemas
 }) => {
+  const ObjectId = mongoose.Types.ObjectId
   const categoryJoi = joi.object({
     name: joi.string().required(),
     description: joi.string().allow(''),
@@ -16,6 +17,10 @@ module.exports = (joi, mongoose, {
     slug: {
       type: String,
       unique: true
+    },
+    createdBy: {
+      type: ObjectId,
+      ref: 'UserCMS'
     }
   }, {
     createdAt: {

@@ -130,7 +130,7 @@ module.exports = (container) => {
   }
   const createCateNews = async (req, res) => {
     try {
-      const { _id } = req.user
+      const { _id } = req.userCMS
       let data = req.body
       if (data) {
         data = { ...data, createdBy: _id.toString() }

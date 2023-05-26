@@ -178,7 +178,7 @@ module.exports = (container) => {
   }
   const createNews = async (req, res) => {
     try {
-      const { username } = req.user
+      const { username } = req.userCMS
       const body = req.body
       if (body) {
         body.createdBy = username.toString()

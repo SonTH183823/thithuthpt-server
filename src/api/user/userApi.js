@@ -13,6 +13,9 @@ module.exports = (app, container) => {
   app.get(`${basePath}/verifyToken`, userController.verifyToken)
   app.get(`${basePath}/details`, userController.getUserDetail)
   app.get(`${basePath}/users`, userController.getListUserByIds)
+  app.delete(`${basePath}/users/:id`, userController.deleteUserByUid)
+  app.get(`${basePath}/allUsers`, userController.getAllUserWebsite)
   app.post(`${basePath}/logout`, userController.logout)
   app.put(`${basePath}/user`, userController.updateSelfInfo)
+  app.put(`${basePath}/usersById/:id`, userController.updateUsersById)
 }

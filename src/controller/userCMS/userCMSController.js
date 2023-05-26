@@ -16,6 +16,7 @@ module.exports = (container) => {
   //   username: 'admin',
   //   isAdministrator: 1,
   //   name: 'Tô Hoài Sơn',
+  //   roles: [1, 2, 3, 4, 5, 6],
   //   password: serverHelper.encryptPassword('123456')
   // }).catch(() => {})
 

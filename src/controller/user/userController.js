@@ -8,8 +8,13 @@ module.exports = container => {
     sessionRepo
   } = container.resolve('repo')
   const logger = container.resolve('logger')
-  const { schemaValidator } = container.resolve('models')
-  const mediator = container.resolve('mediator')
+  const ObjectId = container.resolve('ObjectId')
+  const {
+    schemaValidator,
+    schemas: {
+      mongoose: { User }
+    }
+  } = container.resolve('models')
   const {
     httpCode,
     serverHelper,
@@ -196,6 +201,34 @@ module.exports = container => {
       return { msg: e.message }
     }
   }
+  const updateUsersById = async (req, res) => {
+    try {
+      const { id: uid } = req.params
+      let body = req.body
+      const item = await userRepo.findOne({ uid }).lean()
+      body = Object.assign(item, body)
+      if (item) {
+        await userRepo.updateUserByUid({ uid }, body)
+        return res.status(httpCode.SUCCESS).json({ ok: true })
+      }
+
+      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
+  const deleteUserByUid = async (req, res) => {
+    try {
+      const { id: uid } = req.params
+      await userRepo.removeUser({ uid })
+      return res.status(httpCode.SUCCESS).json({ ok: true })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
+
   const loginOrRegister = async (req, res) => {
     try {
       const {
@@ -248,7 +281,6 @@ module.exports = container => {
       })
     }
   }
-
   const updateSelfInfo = async (req, res) => {
     try {
       const {
@@ -375,6 +407,78 @@ module.exports = container => {
       res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
+
+  const getAllUserWebsite = async (req, res) => {
+    try {
+      let {
+        page,
+        perPage,
+        sort,
+        ids,
+        startTime,
+        endTime,
+        title
+      } = req.query
+      page = +page || 1
+      perPage = +perPage || 10
+      sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
+      const skip = (page - 1) * perPage
+      const search = { ...req.query }
+      if (search.slug) {
+        search.slug = serverHelper.stringToSlug(search.slug)
+      }
+      const pipe = {}
+      if (title) {
+        pipe.slug = new RegExp(serverHelper.stringToSlug(title).replace(/\\/g, '\\\\'), 'gi')
+      }
+      if (ids) {
+        if (ids.constructor === Array) {
+          pipe._id = { $in: ids }
+        } else if (ids.constructor === String) {
+          pipe._id = { $in: ids.split(',') }
+        }
+      }
+      if (startTime) {
+        pipe.createdAt = { $gte: startTime }
+      }
+      if (endTime) {
+        pipe.createdAt = { ...pipe.createdAt, $lte: endTime }
+      }
+      delete search.ids
+      delete search.page
+      delete search.perPage
+      delete search.sort
+      delete search.startTime
+      delete search.endTime
+      delete search.title
+
+      Object.keys(search).forEach(key => {
+        const value = search[key]
+        const pathType = (User.schema.path(key) || {}).instance || ''
+        if (pathType.toLowerCase() === 'objectid') {
+          pipe[key] = value ? ObjectId(value) : { $exists: false }
+        } else if (pathType === 'Number') {
+          pipe[key] = +value ? +value : 0
+        } else if (pathType === 'String' && value.constructor === String) {
+          pipe[key] = serverHelper.formatRegex(value)
+        } else {
+          pipe[key] = value
+        }
+      })
+      const data = await userRepo.getUsers(pipe, perPage, skip, sort)
+      const total = await userRepo.getCount(pipe)
+      return res.status(httpCode.SUCCESS).json({
+        data,
+        page,
+        perPage,
+        sort,
+        total
+      })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   const logout = async (req, res) => {
     try {
       const token = req.headers['x-access-token']
@@ -424,15 +528,19 @@ module.exports = container => {
       res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
     }
   }
+
   return {
     loginOrRegister,
     refreshToken,
     ping,
     getUserDetail,
     logout,
+    updateUsersById,
     verifyToken,
     getListUserByIds,
     getUserFromCache,
-    updateSelfInfo
+    updateSelfInfo,
+    getAllUserWebsite,
+    deleteUserByUid
   }
 }
