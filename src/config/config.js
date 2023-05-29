@@ -10,21 +10,14 @@ const userConfig = {
 const tokenTime = process.env.EXPIRE_TOKEN || '1d'
 
 const historyType = {
-  LOGIN: 1,
-  LOGOUT: 2,
-  BLOCK: 3,
-  UNBLOCK: 4,
-  KICK: 5
+  LOGIN: 1, LOGOUT: 2, BLOCK: 3, UNBLOCK: 4, KICK: 5
 }
 const eventConfig = {
   USER_CHANGE: 'user-change'
 }
 
 const deviceTypes = {
-  ANDROID: 1,
-  IOS: 2,
-  WEB: 3,
-  SUPER_APP: 4
+  ANDROID: 1, IOS: 2, WEB: 3, SUPER_APP: 4
 }
 const httpCode = {
   SUCCESS: 200,
@@ -40,13 +33,11 @@ const httpCode = {
   DEVICE_BLOCK: 413
 }
 const loginType = {
-  USER: 1,
-  GUEST: 2
+  USER: 1, GUEST: 2
 }
 const DEFAULT_GOOGLE_APPLICATION_CREDENTIALS = require.resolve('./thi-thu-thpt-firebase-adminsdk-x2nu6-717aaa619b.json')
 const cryptoSetting = {
-  enable: !!+process.env.CRYPTO_ENABLE,
-  secretKey: process.env.CRYPTO_KEY || '8a20140f249eeb21befad80f74520243'
+  enable: !!+process.env.CRYPTO_ENABLE, secretKey: process.env.CRYPTO_KEY || '8a20140f249eeb21befad80f74520243'
 }
 const firebaseConfig = {
   serviceAccountPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || DEFAULT_GOOGLE_APPLICATION_CREDENTIALS
@@ -56,8 +47,8 @@ const dbSettings = {
   db: process.env.DB || 'thi-thu-thpt',
   user: process.env.DB_USER || '',
   pass: process.env.DB_PASS || '',
-  repl: process.env.DB_REPLS || '',
-  servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['192.168.221.27:27017']
+  repl: process.env.DB_REPLS || '', // servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['192.168.221.27:27017']
+  servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['127.0.0.1:27017']
 }
 const serverHelper = function () {
   const jwt = require('jsonwebtoken')
@@ -94,7 +85,6 @@ const serverHelper = function () {
   function getRandomInt (lower, upper) {
     return Math.floor(lower + (Math.random() * (upper - lower + 1)))
   }
-
 
   function generateHash (str) {
     return crypto.createHash('md5').update(str).digest('hex')
@@ -137,8 +127,7 @@ const serverHelper = function () {
 
   const handleDataBeforeCache = (data) => {
     return {
-      data: data instanceof String ? JSON.parse(data) : data,
-      dateCreated: Date.now() / 1000
+      data: data instanceof String ? JSON.parse(data) : data, dateCreated: Date.now() / 1000
     }
   }
 
@@ -146,6 +135,7 @@ const serverHelper = function () {
     const re = /([[\\^$.|?*+()])/g
     return new RegExp(str.replace(re, '\\$1'), 'gi')
   }
+
   function encryptPassword (password) {
     return crypto.createHash('sha256').update(password, 'binary').digest('base64')
   }
@@ -187,11 +177,7 @@ const serverHelper = function () {
       // Works in case when functions are created in constructor.
       // Comparing dates is a common scenario. Another built-ins?
       // We can even handle functions passed across iframes
-      if ((typeof x === 'function' && typeof y === 'function') ||
-        (x instanceof Date && y instanceof Date) ||
-        (x instanceof RegExp && y instanceof RegExp) ||
-        (x instanceof String && y instanceof String) ||
-        (x instanceof Number && y instanceof Number)) {
+      if ((typeof x === 'function' && typeof y === 'function') || (x instanceof Date && y instanceof Date) || (x instanceof RegExp && y instanceof RegExp) || (x instanceof String && y instanceof String) || (x instanceof Number && y instanceof Number)) {
         return x.toString() === y.toString()
       }
 

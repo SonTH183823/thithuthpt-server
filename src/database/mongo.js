@@ -15,6 +15,7 @@ const connect = (container, mediator) => {
   const { dbSettings } = config
   if (!dbSettings) throw new Error('missing dbSettings')
   const connectionString = getMongoURL(dbSettings)
+  console.log(connectionString)
   MongoClient.connect(connectionString, {
     useNewUrlParser: true,
     keepAlive: 1,
