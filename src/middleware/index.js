@@ -7,7 +7,15 @@ module.exports = (container) => {
   const { sessionRepo } = container.resolve('repo')
   const logger = container.resolve('logger')
   const verifyAccessToken = async (req, res, next) => {
-    return next()
+    try {
+      // return next()
+      const token = req.headers['x-access-token'] || ''
+      req.userCMS = await serverHelper.verifyToken(token)
+      return next()
+    } catch (e) {
+      // logger.e(e)
+      res.status(httpCode.TOKEN_EXPIRED).json({})
+    }
   }
 
   async function verifyTokenCMS1 (req, res, next) {
