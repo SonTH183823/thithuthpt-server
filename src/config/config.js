@@ -1,7 +1,8 @@
 require('dotenv').config()
 const serverSettings = {
   port: process.env.PORT || 8003,
-  basePath: process.env.BASE_PATH || '',
+  basePath: process.env.BASE_PATH_WEB || '/web',
+  basePathCMS: process.env.BASE_PATH_CMS || '/cms',
   signature: process.env.SECRET_SIGNATURE || '#123Ag'
 }
 const userConfig = {
@@ -47,14 +48,16 @@ const dbSettings = {
   db: process.env.DB || 'thi-thu-thpt',
   user: process.env.DB_USER || '',
   pass: process.env.DB_PASS || '',
-  repl: process.env.DB_REPLS || '', // servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['192.168.221.27:27017']
-  servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['127.0.0.1:27017']
+  repl: process.env.DB_REPLS || '',
+  servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['192.168.221.27:27017']
+  // servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['127.0.0.1:27017']
 }
 const serverHelper = function () {
   const jwt = require('jsonwebtoken')
   const crypto = require('crypto')
   const ms = require('ms')
   const secretKey = process.env.SECRET_KEY || '123aava'
+  const secretKeyCMS = process.env.SECRET_KEY_CMS || 'sonthcms'
 
   function decodeToken (token) {
     return jwt.decode(token)
@@ -74,9 +77,21 @@ const serverHelper = function () {
     return jwt.sign(obj, secretKey, { expiresIn: tokenTime })
   }
 
+  function genTokenCMS (obj) {
+    return jwt.sign(obj, secretKeyCMS, { expiresIn: tokenTime })
+  }
+
   function verifyToken (token) {
     try {
       return jwt.verify(token, secretKey)
+    } catch (e) {
+      return e
+    }
+  }
+
+  function verifyTokenCMS (token) {
+    try {
+      return jwt.verify(token, secretKeyCMS)
     } catch (e) {
       return e
     }
@@ -277,7 +292,9 @@ const serverHelper = function () {
     stringToSlugSearch,
     deepCompare,
     encryptPassword,
-    getRandomInt
+    getRandomInt,
+    genTokenCMS,
+    verifyTokenCMS
   }
 }
 module.exports = {

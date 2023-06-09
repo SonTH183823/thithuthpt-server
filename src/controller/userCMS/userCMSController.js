@@ -71,7 +71,7 @@ module.exports = (container) => {
         })
         if (userCMS) {
           const u = userCMS.toObject()
-          const token = serverHelper.genToken(u)
+          const token = serverHelper.genTokenCMS(u)
           const { exp } = serverHelper.decodeToken(token)
           await sessionCMSRepo.addSessionCMS(serverHelper.generateHash(token), u._id, exp)
           const allSess = await sessionCMSRepo.getSessionCMS({ userCMSId: String(u._id) })

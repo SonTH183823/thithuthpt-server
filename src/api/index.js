@@ -1,7 +1,17 @@
 module.exports = (app, container) => {
-  require('./user/userApi')(app, container)
-  require('./news/newsApi')(app, container)
-  require('./news/categoryApi')(app, container)
-  require('./news/tagApi')(app, container)
-  require('./userCMS/userCMSApi')(app, container)
+  //CMS
+  require('./CMS/userCMS/userCMSApi')(app, container)
+  require('./CMS/user/userApi')(app, container)
+  require('./CMS/news/categoryApi')(app, container)
+  require('./CMS/news/tagApi')(app, container)
+  require('./CMS/news/newsApi')(app, container)
+
+  //web
+  require('./WEB/user/userApi')(app, container)
+  require('./WEB/news/categoryApi')(app, container)
+  require('./WEB/news/tagApi')(app, container)
+  require('./WEB/news/newsApi')(app, container)
+
+  //upload
+  require('./apiUpload')(app, container)
 }
