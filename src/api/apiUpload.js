@@ -36,7 +36,7 @@ module.exports = (app, container) => {
     }
     res.status(404).json({})
   })
-  app.post('/upload', verifyToken, upload.single('file'), (req, res, next) => {
+  app.post('/web/upload', verifyToken, upload.single('file'), (req, res, next) => {
     try {
       console.log('upload complete', req.file)
       return res.status(200).json({
@@ -50,7 +50,7 @@ module.exports = (app, container) => {
     }
   })
 
-  app.post('/uploadMany', verifyToken, upload.any(), (req, res, next) => {
+  app.post('/web/uploadMany', verifyToken, upload.any(), (req, res, next) => {
     try {
       console.log('upload complete', req.files)
       return res.status(200).json({
@@ -62,7 +62,7 @@ module.exports = (app, container) => {
     }
   })
 
-  app.post('/upload-cms', verifyTokenCMS, upload.single('file'), (req, res, next) => {
+  app.post('/cms/upload', verifyTokenCMS, upload.single('file'), (req, res, next) => {
     try {
       console.log('upload complete', req.file)
       return res.status(200).json({
@@ -76,7 +76,7 @@ module.exports = (app, container) => {
     }
   })
 
-  app.post('/uploadMany-cms', verifyTokenCMS, upload.any(), (req, res, next) => {
+  app.post('/cms/uploadMany', verifyTokenCMS, upload.any(), (req, res, next) => {
     try {
       console.log('upload complete', req.files)
       return res.status(200).json({
