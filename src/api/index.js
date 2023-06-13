@@ -16,4 +16,8 @@ module.exports = (app, container) => {
 
   //upload
   require('./apiUpload')(app, container)
+
+  //exam-question
+  require('./CMS/exam/examApi')(app, container)
+  require('./CMS/question/questionApi')(app, container)
 }
