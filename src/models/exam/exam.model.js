@@ -29,10 +29,10 @@ module.exports = (joi, mongoose, {
     time: joi.number(),
     numberTest: joi.number().default(0),
     numberView: joi.number().default(0),
-    listTypeQuestion: joi.object({
+    listTypeQuestion: joi.array().items(joi.object({
       label: joi.string().required(),
       value: joi.number()
-    }).allow({})
+    }).allow({})).allow([])
   })
   const examSchema = joi2MongoSchema(examJoi, {
     slug: {
