@@ -32,7 +32,7 @@ module.exports = (joi, mongoose, {
     listTypeQuestion: joi.array().items(joi.object({
       label: joi.string().required(),
       value: joi.number()
-    }).allow({})).allow([])
+    }).allow({}))
   })
   const examSchema = joi2MongoSchema(examJoi, {
     slug: {
