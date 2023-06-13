@@ -35,11 +35,13 @@ module.exports = container => {
   const Ping = require('./user/ping.model')(joi, mongoose)
   const Login = require('./joi/login.model')(joi)
   const Session = require('./user/session.model')(joi, mongoose)
+  const UserCMS = require('./userCMS/userCMS.model')(joi, mongoose)
+  const SessionCMS = require('./userCMS/sessionCMS.model')(joi, mongoose)
   const Category = require('./news/category.model')(joi, mongoose, { joi2MongoSchema })
   const News = require('./news/news.model')(joi, mongoose, { joi2MongoSchema })
   const Tag = require('./news/tag.model')(joi, mongoose, { joi2MongoSchema })
-  const UserCMS = require('./userCMS/userCMS.model')(joi, mongoose)
-  const SessionCMS = require('./userCMS/sessionCMS.model')(joi, mongoose)
+  const Rate = require('./rate/rate.model')(joi, mongoose, { joi2MongoSchema })
+
   const schemas = {
     mongoose: {
       User, Session, Ping
@@ -49,7 +51,8 @@ module.exports = container => {
     Category,
     Tag,
     UserCMS,
-    SessionCMS
+    SessionCMS,
+    Rate
   }
   const schemaValidator = (obj, type) => {
     if (type === 'Login') {

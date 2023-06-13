@@ -8,7 +8,19 @@ const repo = (container) => {
   const pingRepo = require('./user/pingRepo')(container)
   const userCMSRepo = require('./userCMS/userCMSRepo')(container)
   const sessionCMSRepo = require('./userCMS/sessionCMSRepo')(container)
-  return { sessionRepo, userRepo, newsRepo, tagRepo, categoryRepo, pingRepo, blockRepo, userCMSRepo, sessionCMSRepo }
+  const rateRepo = require('./rate/rateRepo')(container)
+  return {
+    sessionRepo,
+    userRepo,
+    newsRepo,
+    tagRepo,
+    categoryRepo,
+    pingRepo,
+    blockRepo,
+    userCMSRepo,
+    sessionCMSRepo,
+    rateRepo
+  }
 }
 const connect = (container) => {
   const dbPool = container.resolve('db')

@@ -7,12 +7,16 @@ module.exports = (container) => {
   // userCMS
   const userCMSController = require('./userCMS/userCMSController')(container)
   const authorizationController = require('./userCMS/authorizationController')(container)
+
+  //rate
+  const rateController = require('./rate/rateController')(container)
   return {
     userController,
     newsController,
     categoryController,
     tagController,
     userCMSController,
-    authorizationController
+    authorizationController,
+    rateController
   }
 }
