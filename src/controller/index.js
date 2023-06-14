@@ -14,6 +14,7 @@ module.exports = (container) => {
   //exam-question
   const examController = require('./exam/examController')(container)
   const questionController = require('./question/questionController')(container)
+  const partSubjectController = require('./partSubject/partSubjectController')(container)
   return {
     userController,
     newsController,
@@ -23,6 +24,7 @@ module.exports = (container) => {
     authorizationController,
     rateController,
     examController,
-    questionController
+    questionController,
+    partSubjectController
   }
 }

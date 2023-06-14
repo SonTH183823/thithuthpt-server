@@ -42,6 +42,7 @@ module.exports = container => {
   const Tag = require('./news/tag.model')(joi, mongoose, { joi2MongoSchema })
   const Rate = require('./rate/rate.model')(joi, mongoose, { joi2MongoSchema })
   const Exam = require('./exam/exam.model')(joi, mongoose, { joi2MongoSchema })
+  const PartSubject = require('./partSubject/partSubject.model')(joi, mongoose, { joi2MongoSchema })
 
   const schemas = {
     mongoose: {
@@ -54,7 +55,8 @@ module.exports = container => {
     UserCMS,
     SessionCMS,
     Rate,
-    Exam
+    Exam,
+    PartSubject
   }
   const schemaValidator = (obj, type) => {
     if (type === 'Login') {

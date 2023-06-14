@@ -36,7 +36,7 @@ module.exports = container => {
     return Exam.deleteMany(pipe)
   }
   const getExam = async (id) => {
-    return Exam.findOne(id).populate('category tags')
+    return Exam.findOne(id)
   }
   const findOne = async (pipe) => {
     return Exam.findOne(pipe)

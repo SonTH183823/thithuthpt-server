@@ -44,6 +44,18 @@ const firebaseConfig = {
   serviceAccountPath: process.env.GOOGLE_APPLICATION_CREDENTIALS || DEFAULT_GOOGLE_APPLICATION_CREDENTIALS
 }
 
+const subjectConfig = {
+  TOAN: 1,
+  LY: 2,
+  HOA: 3,
+  SINH: 4,
+  ANH: 5,
+  SU: 6,
+  DIA: 7,
+  GDCD: 8,
+  TOEIC: 9
+}
+
 const dbSettings = {
   db: process.env.DB || 'thi-thu-thpt',
   user: process.env.DB_USER || '',
@@ -309,5 +321,6 @@ module.exports = {
   deviceTypes,
   cryptoSetting,
   firebaseConfig,
-  tokenTime
+  tokenTime,
+  subjectConfig
 }
