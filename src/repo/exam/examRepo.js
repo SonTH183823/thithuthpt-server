@@ -27,7 +27,7 @@ module.exports = container => {
     return Exam.aggregate(pipe)
   }
   const getListExam = (pipe, limit, skip, sort) => {
-    return Exam.find(pipe).limit(limit).skip(skip).sort(sort).populate('category tags')//
+    return Exam.find(pipe).limit(limit).skip(skip).sort(sort)
   }
   const getExamNoPaging = (pipe) => {
     return Exam.find(pipe).populate('category tags')

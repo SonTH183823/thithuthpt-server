@@ -51,7 +51,7 @@ module.exports = (app, container) => {
     }
   })
 
-  app.post('/web/uploadMany', verifyToken, upload.any(), (req, res, next) => {
+  app.post('/web/uploadMany', verifyToken, upload.array('files'), (req, res, next) => {
     try {
       console.log('upload complete', req.files)
       return res.status(200).json({
@@ -79,7 +79,7 @@ module.exports = (app, container) => {
     }
   })
 
-  app.post('/cms/uploadMany', verifyTokenCMS, upload.any(), (req, res, next) => {
+  app.post('/cms/uploadMany', verifyTokenCMS, upload.array('files'), (req, res, next) => {
     try {
       console.log('upload complete', req.files)
       return res.status(200).json({
