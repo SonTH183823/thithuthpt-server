@@ -1,7 +1,7 @@
 module.exports = (container) => {
   const logger = container.resolve('logger')
   const { httpCode, serverHelper } = container.resolve('config')
-  const { examRepo } = container.resolve('repo')
+  const { examRepo, questionRepo } = container.resolve('repo')
   const ObjectId = container.resolve('ObjectId')
   const {
     schemaValidator,
@@ -197,6 +197,29 @@ module.exports = (container) => {
         return res.status(httpCode.CREATED).json(news)
       }
       return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
+    } catch (e) {
+      logger.e(e)
+      if (e.code === 11000) {
+        return res.status(httpCode.BAD_REQUEST).json({ msg: 'Tiêu đề đã tồn tại!' })
+      }
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
+  const updateQuestion = async (req, res) => {
+    try {
+      const { listQuestion } = req.body
+      const qq = []
+      for (const va of listQuestion) {
+        const { error, value } = schemaValidator(va, 'Question')
+        if (error) {
+          return res.status(httpCode.BAD_REQUEST).json({ msg: 'loi roi' })
+        }
+        const v = questionRepo.createQuestion(value)
+        qq.push(v)
+      }
+      await Promise.all(qq)
+
+      res.status(httpCode.SUCCESS).json({ ok: true })
     } catch (e) {
       logger.e(e)
       if (e.code === 11000) {

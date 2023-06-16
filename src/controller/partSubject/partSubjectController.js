@@ -119,8 +119,8 @@ module.exports = (container) => {
       if (id && id.length === 24) {
         const item = await partSubjectRepo.getPartSubjectById(id)
         if (item) {
-          body.slug = serverHelper.stringToSlug(body.title)
-          body.keyword = serverHelper.stringToSlugSearch(body.title)
+          body.slug = serverHelper.stringToSlug(body.name)
+          body.keyword = serverHelper.stringToSlugSearch(body.name)
           body.updatedAt = Math.floor(Date.now() / 1000)
           const {
             error,
@@ -182,8 +182,8 @@ module.exports = (container) => {
       const body = req.body
       if (body) {
         body.createdBy = username.toString()
-        body.slug = serverHelper.stringToSlug(body.title)
-        body.keyword = serverHelper.stringToSlugSearch(body.title)
+        body.slug = serverHelper.stringToSlug(body.name)
+        body.keyword = serverHelper.stringToSlugSearch(body.name)
         body.updatedAt = Math.floor(Date.now() / 1000)
         const {
           error,

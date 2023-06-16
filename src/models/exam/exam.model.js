@@ -15,7 +15,7 @@ module.exports = (joi, mongoose, {
   }
   const ObjectId = mongoose.Types.ObjectId
   const examJoi = joi.object({
-    category: joi.number().valid(...Object.values(categoryConfig)).required(),
+    subject: joi.number().valid(...Object.values(categoryConfig)).required(),
     title: joi.string().required(),
     thumbnail: joi.string().allow(''),
     description: joi.string().allow(''),

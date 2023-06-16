@@ -6,7 +6,7 @@ module.exports = container => {
     return n.save()
   }
   const getExamById = (id) => {
-    return Exam.findById(id).populate('questionIds')
+    return Exam.findById(id)
   }
   const deleteExam = (id) => {
     return Exam.findByIdAndRemove(id, { useFindAndModify: false })
@@ -30,7 +30,7 @@ module.exports = container => {
     return Exam.find(pipe).limit(limit).skip(skip).sort(sort)
   }
   const getExamNoPaging = (pipe) => {
-    return Exam.find(pipe).populate('category tags')
+    return Exam.find(pipe)
   }
   const removeExam = (pipe) => {
     return Exam.deleteMany(pipe)

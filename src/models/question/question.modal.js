@@ -19,12 +19,14 @@ module.exports = (joi, mongoose, {
     GDCD: 8,
     TOEIC: 9
   }
+  const ObjectId = mongoose.Types.ObjectId
   const questionJoi = joi.object({
     content: joi.string().required(),
     answer: joi.number().valid(...Object.values(answerConfig)).required(),//đáp án
     explanation: joi.string().allow(''),//lời giải
     subject: joi.number().valid(...Object.values(categoryConfig)).required(),
     description: joi.string().allow(''),
+    category: joi.string(),
     slug: joi.string(),
     createdBy: joi.string(),
     active: joi.number().valid(0, 1).default(1),
@@ -35,7 +37,11 @@ module.exports = (joi, mongoose, {
     slug: {
       type: String,
       unique: true
-    }
+    },
+    category: [{
+      type: ObjectId,
+      ref: 'PartSubject'
+    }]
   }, {
     createdAt: {
       type: Number,
