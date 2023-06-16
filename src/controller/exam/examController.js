@@ -208,6 +208,7 @@ module.exports = (container) => {
   const updateQuestion = async (req, res) => {
     try {
       const { listQuestion } = req.body
+      const { id } = req.params
       const qq = []
       for (const va of listQuestion) {
         const { error, value } = schemaValidator(va, 'Question')
@@ -217,8 +218,13 @@ module.exports = (container) => {
         const v = questionRepo.createQuestion(value)
         qq.push(v)
       }
-      await Promise.all(qq)
-
+      const aa = await Promise.all(qq)
+      const ids = []
+      for (let a of aa) {
+        a = a.toObject()
+        ids.push(a._id)
+      }
+      await examRepo.updateExam(id, { questionIds: ids })
       res.status(httpCode.SUCCESS).json({ ok: true })
     } catch (e) {
       logger.e(e)
@@ -233,6 +239,7 @@ module.exports = (container) => {
     getExamById,
     removeExamById,
     updateExamById,
-    createExam
+    createExam,
+    updateQuestion
   }
 }

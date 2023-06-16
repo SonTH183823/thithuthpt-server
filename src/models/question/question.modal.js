@@ -27,17 +27,12 @@ module.exports = (joi, mongoose, {
     subject: joi.number().valid(...Object.values(categoryConfig)).required(),
     description: joi.string().allow(''),
     category: joi.string(),
-    slug: joi.string(),
     createdBy: joi.string(),
     active: joi.number().valid(0, 1).default(1),
     delete: joi.number().valid(0, 1).default(0),
     updatedAt: joi.number()
   })
   const questionSchema = joi2MongoSchema(questionJoi, {
-    slug: {
-      type: String,
-      unique: true
-    },
     category: [{
       type: ObjectId,
       ref: 'PartSubject'
