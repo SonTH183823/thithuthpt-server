@@ -15,6 +15,7 @@ module.exports = (container) => {
   const examController = require('./exam/examController')(container)
   const questionController = require('./question/questionController')(container)
   const partSubjectController = require('./partSubject/partSubjectController')(container)
+  const favoriteExamController = require('./exam/favoriteExamController')(container)
   return {
     userController,
     newsController,
@@ -25,6 +26,7 @@ module.exports = (container) => {
     rateController,
     examController,
     questionController,
-    partSubjectController
+    partSubjectController,
+    favoriteExamController
   }
 }
