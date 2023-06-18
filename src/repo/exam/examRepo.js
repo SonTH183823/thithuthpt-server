@@ -29,6 +29,9 @@ module.exports = container => {
   const getListExam = (pipe, limit, skip, sort) => {
     return Exam.find(pipe).limit(limit).skip(skip).sort(sort)
   }
+  const getListQuestionExam = (id) => {
+    return Exam.findOne(id).populate('questionIds')
+  }
   const getExamNoPaging = (pipe) => {
     return Exam.find(pipe)
   }
@@ -65,6 +68,7 @@ module.exports = container => {
     getExam,
     getListExam,
     updateMany,
-    findExam
+    findExam,
+    getListQuestionExam
   }
 }

@@ -5,6 +5,7 @@ module.exports = (app, container) => {
   const { verifyToken } = container.resolve('middleware')
 
   app.get(`${basePath}/exam`, verifyToken, examController.getListExam)
+  app.get(`${basePath}/exam/question/:id`, verifyToken, examController.getListQuestionExam)
   app.get(`${basePath}/exam/related/:id`, verifyToken, examController.getExamRelated)
   app.get(`${basePath}/exam/:id`, verifyToken, examController.getExamById)
 }

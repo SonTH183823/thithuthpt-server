@@ -81,6 +81,24 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+  const getListQuestionExam = async (req, res) => {
+    try {
+      let { id } = req.params
+      id = decodeURI(id)
+      const query = { $or: [{ slug: id }] }
+      if (id.match(/^[0-9a-fA-F]{24}$/)) {
+        query.$or.push({ _id: id })
+      }
+      const news = await examRepo.getListQuestionExam(query)
+      if (news) {
+        return res.status(httpCode.SUCCESS).json(news)
+      }
+      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   const getExamRelated = async (req, res) => {
     const { id } = req.params
     try {
@@ -141,7 +159,6 @@ module.exports = (container) => {
       })
       const data = await examRepo.getListExam(pipe, perPage, skip, sort)
       const filterDt = data.filter(item => item._id !== id)
-      console.log(filterDt)
       const total = await examRepo.getCount(pipe)
       return res.status(httpCode.SUCCESS).json({
         data: filterDt,
@@ -318,6 +335,7 @@ module.exports = (container) => {
     updateExamById,
     createExam,
     updateQuestion,
-    getExamRelated
+    getExamRelated,
+    getListQuestionExam
   }
 }
