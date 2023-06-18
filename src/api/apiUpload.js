@@ -83,8 +83,9 @@ module.exports = (app, container) => {
     try {
       console.log('upload complete', req.files)
       return res.status(200).json({
-        msg: 'Tải lên thành công.',
-        path: req.files.map(i => i.path)
+        msg: 'Tải lên thư mục thành công.',
+        path: req.files.map(i => i.path),
+        filename: req.files.map(i => i.filename)
       })
     } catch (error) {
       console.error(error)

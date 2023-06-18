@@ -138,7 +138,8 @@ module.exports = (container) => {
             category,
             tags,
             active,
-            keyword
+            keyword,
+            listTypeQuestion
           } = item.toObject()
           const oldObject = {
             title,
@@ -148,7 +149,8 @@ module.exports = (container) => {
             category: category ? category.toString : '',
             tags,
             active,
-            keyword
+            keyword,
+            listTypeQuestion
           }
           const newObject = {
             title: value.title,
@@ -158,7 +160,8 @@ module.exports = (container) => {
             category: value.category,
             tags: value.tags,
             active: value.active,
-            keyword: value.keyword
+            keyword: value.keyword,
+            listTypeQuestion: value.listTypeQuestion,
           }
           if (serverHelper.deepCompare(oldObject, newObject)) {
             return res.status(httpCode.BAD_REQUEST).json({ msg: 'Dữ liệu không thay đổi!' })
@@ -207,7 +210,7 @@ module.exports = (container) => {
   }
   const updateQuestion = async (req, res) => {
     try {
-      const { listQuestion } = req.body
+      const { listQuestion, listTypeQuestion } = req.body
       const { id } = req.params
       const qq = []
       for (const va of listQuestion) {
@@ -224,7 +227,7 @@ module.exports = (container) => {
         a = a.toObject()
         ids.push(a._id)
       }
-      await examRepo.updateExam(id, { questionIds: ids })
+      await examRepo.updateExam(id, { questionIds: ids, listTypeQuestion: listTypeQuestion })
       res.status(httpCode.SUCCESS).json({ ok: true })
     } catch (e) {
       logger.e(e)

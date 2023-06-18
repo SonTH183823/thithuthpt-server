@@ -21,4 +21,6 @@ module.exports = (app, container) => {
   //exam-question
   require('./CMS/exam/examApi')(app, container)
   require('./CMS/question/questionApi')(app, container)
+  require('./WEB/exam/examApi')(app, container)
+  require('./WEB/question/questionApi')(app, container)
 }

@@ -13,9 +13,16 @@ module.exports = (joi, mongoose, {
     GDCD: 8,
     TOEIC: 9
   }
+  const level = {
+    COBAN: 1,
+    TRUNGBINH: 2,
+    NANGCAO: 3,
+    KHO: 4
+  }
   const ObjectId = mongoose.Types.ObjectId
   const examJoi = joi.object({
     subject: joi.number().valid(...Object.values(categoryConfig)).required(),
+    level: joi.number().valid(...Object.values(level)).required(),
     title: joi.string().required(),
     thumbnail: joi.string().allow(''),
     description: joi.string().allow(''),
@@ -25,12 +32,15 @@ module.exports = (joi, mongoose, {
     createdBy: joi.string(),
     delete: joi.number().valid(0, 1).default(0),
     questionIds: joi.array().items(joi.string()).default([]),
-    rating: joi.number().default(0),
+    rate: joi.number().default(0),
     time: joi.number(),
     numberTest: joi.number().default(0),
     numberView: joi.number().default(0),
+    outstanding: joi.number().default(0),
+    keyword: joi.string(),
     listTypeQuestion: joi.array().items(joi.object({
-      label: joi.string().required(),
+      id: joi.string(),
+      label: joi.string(),
       value: joi.number()
     }).allow({}))
   })
@@ -38,6 +48,10 @@ module.exports = (joi, mongoose, {
     slug: {
       type: String,
       unique: true
+    },
+    keyword: {
+      lowercase: true,
+      type: String
     },
     questionIds: [{
       type: ObjectId,
