@@ -16,7 +16,7 @@ module.exports = (joi, mongoose, {
   const partSubjectJoi = joi.object({
     subject: joi.number().valid(...Object.values(subjectConfig)).default(1),
     name: joi.string().required(),
-    thumbnail: joi.string().required()
+    thumbnail: joi.string().allow('')
   })
   const partSubjectSchema = joi2MongoSchema(partSubjectJoi, {}, {
     createdAt: {

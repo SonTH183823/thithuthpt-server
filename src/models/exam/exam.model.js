@@ -38,6 +38,9 @@ module.exports = (joi, mongoose, {
     numberView: joi.number().default(0),
     outstanding: joi.number().default(0),
     keyword: joi.string(),
+    listeningQuestion: joi.array().items(joi.string()).default([]),
+    listeningFile: joi.string().allow(''),
+    readingQuestion: joi.array().items(joi.string()).default([]),
     listTypeQuestion: joi.array().items(joi.object({
       id: joi.string(),
       label: joi.string(),
@@ -54,6 +57,14 @@ module.exports = (joi, mongoose, {
       type: String
     },
     questionIds: [{
+      type: ObjectId,
+      ref: 'Question'
+    }],
+    listeningQuestion: [{
+      type: ObjectId,
+      ref: 'Question'
+    }],
+    readingQuestion: [{
       type: ObjectId,
       ref: 'Question'
     }]
