@@ -81,6 +81,80 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+  const getExamRelated = async (req, res) => {
+    const { id } = req.params
+    try {
+      let {
+        page,
+        perPage,
+        sort,
+        ids,
+        startTime,
+        endTime,
+        title
+      } = req.query
+      page = +page || 1
+      perPage = +perPage || 10
+      sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
+      const skip = (page - 1) * perPage
+      const search = { ...req.query }
+      if (search.slug) {
+        search.slug = serverHelper.stringToSlug(search.slug)
+      }
+      const pipe = {}
+      if (title) {
+        pipe.slug = new RegExp(serverHelper.stringToSlug(title).replace(/\\/g, '\\\\'), 'gi')
+      }
+      if (ids) {
+        if (ids.constructor === Array) {
+          pipe._id = { $in: ids }
+        } else if (ids.constructor === String) {
+          pipe._id = { $in: ids.split(',') }
+        }
+      }
+      if (startTime) {
+        pipe.createdAt = { $gte: startTime }
+      }
+      if (endTime) {
+        pipe.createdAt = { ...pipe.createdAt, $lte: endTime }
+      }
+      delete search.ids
+      delete search.page
+      delete search.perPage
+      delete search.sort
+      delete search.startTime
+      delete search.endTime
+      delete search.title
+
+      Object.keys(search).forEach(key => {
+        const value = search[key]
+        const pathType = (Exam.schema.path(key) || {}).instance || ''
+        if (pathType.toLowerCase() === 'objectid') {
+          pipe[key] = value ? ObjectId(value) : { $exists: false }
+        } else if (pathType === 'Number') {
+          pipe[key] = +value ? +value : 0
+        } else if (pathType === 'String' && value.constructor === String) {
+          pipe[key] = serverHelper.formatRegex(value)
+        } else {
+          pipe[key] = value
+        }
+      })
+      const data = await examRepo.getListExam(pipe, perPage, skip, sort)
+      const filterDt = data.filter(item => item._id !== id)
+      console.log(filterDt)
+      const total = await examRepo.getCount(pipe)
+      return res.status(httpCode.SUCCESS).json({
+        data: filterDt,
+        page,
+        perPage,
+        sort,
+        total
+      })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   const getExamById = async (req, res) => {
     try {
       let { id } = req.params
@@ -243,6 +317,7 @@ module.exports = (container) => {
     removeExamById,
     updateExamById,
     createExam,
-    updateQuestion
+    updateQuestion,
+    getExamRelated
   }
 }
