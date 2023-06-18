@@ -85,9 +85,7 @@ module.exports = (container) => {
     }
   }
   const getListFavoriteExams = async (req, res) => {
-    console.log('co vao day ko')
     try {
-      const { _id } = req.user
       let {
         page, perPage, sort, ids
       } = req.query
@@ -125,18 +123,39 @@ module.exports = (container) => {
       })
       const data = await favoriteExamRepo.getListFavoriteExam(pipe, perPage, skip, sort)
       const total = await favoriteExamRepo.getCount(pipe)
-      const sum = data.map(item => {
-        return item.star
-      }).reduce((preItem, curItem) => {
-        return preItem + curItem
-      }, 0)
-      const avgStar = sum / total
       return res.status(httpCode.SUCCESS).json({
-        data, page, perPage, sort, total, avgStar
+        data, page, perPage, sort, total, ok: true
       })
     } catch (e) {
       logger.e(e)
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
+  const toggleFavorite = async (req, res) => {
+    try {
+      const { userId, examId } = req.body
+      if (userId && examId) {
+        const data = await favoriteExamRepo.findOne({ userId, examId })
+        if (!data) {
+          const {
+            error, value
+          } = await schemaValidator({ userId, examId }, 'FavoriteExam')
+          if (error) {
+            logger.e(error)
+            return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
+          }
+          const rate = await favoriteExamRepo.createFavoriteExam(value)
+          return res.status(httpCode.CREATED).json({ ...rate, ok: true })
+        } else {
+          await favoriteExamRepo.deleteFavoriteExam(data._id)
+          return res.status(httpCode.SUCCESS).json({ ok: true })
+        }
+      } else {
+        return res.sendStatus(httpCode.BAD_REQUEST)
+      }
+    } catch (e) {
+      console.log(e)
+      return res.sendStatus(httpCode.UNKNOWN_ERROR)
     }
   }
   return {
@@ -144,6 +163,7 @@ module.exports = (container) => {
     removeFavoriteExamById,
     updateFavoriteExamById,
     createFavoriteExam,
-    getListFavoriteExams
+    getListFavoriteExams,
+    toggleFavorite
   }
 }

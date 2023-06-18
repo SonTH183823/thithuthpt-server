@@ -27,7 +27,7 @@ module.exports = container => {
     return FavoriteExam.aggregate(pipe)
   }
   const getListFavoriteExam = (pipe, limit, skip, sort) => {
-    return FavoriteExam.find(pipe).limit(limit).skip(skip).sort(sort)
+    return FavoriteExam.find(pipe).limit(limit).skip(skip).sort(sort).populate('examId')
   }
   const getListQuestionFavoriteExam = (id) => {
     return FavoriteExam.findOne(id).populate('questionIds')
