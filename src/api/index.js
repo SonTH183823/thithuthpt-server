@@ -25,4 +25,7 @@ module.exports = (app, container) => {
   require('./WEB/question/questionApi')(app, container)
   require('./WEB/exam/favoriteExamApi')(app, container)
   require('./CMS/exam/favoriteExamApi')(app, container)
+
+  //comment
+  require('./WEB/comment/commentApi')(app, container)
 }

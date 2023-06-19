@@ -5,32 +5,26 @@ module.exports = (joi, mongoose, {
   const ObjectId = mongoose.Types.ObjectId
   const commentJoi = joi.object({
     postId: joi.string().required(),
+    parentId: joi.string().allow(''),
+    userId: joi.string().required(),
     thumbnail: joi.string().allow(''),
-    description: joi.string().allow(''),
-    slug: joi.string(),
     content: joi.string().required(),
-    isOutstanding: joi.number().valid(0, 1).default(0),
-    isManyViewed: joi.number().valid(0, 1).default(0),
-    createdBy: joi.string(),
-    category: joi.array().items(joi.string()),
-    active: joi.number().valid(0, 1).default(0),
-    customAttributes: joi.object({}).unknown(true),
-    delete: joi.number().valid(0, 1).default(0),
-    keyword: joi.string(),
-    updatedAt: joi.number(),
-    hasNotification: joi.number().valid(0, 1).default(0)
+    imageAttach: joi.string().allow(''),
+    videoAttach: joi.string().allow(''),
+    like: joi.number().default(0),
+    dislike: joi.number().default(0)
   })
   const commentSchema = joi2MongoSchema(commentJoi, {
     postId: {
       type: ObjectId
     },
-    slug: {
-      type: String,
-      unique: true
+    parentId: {
+      type: ObjectId,
+      ref: 'Comment'
     },
-    keyword: {
-      lowercase: true,
-      type: String
+    userId: {
+      type: ObjectId,
+      ref: 'User'
     }
   }, {
     createdAt: {
@@ -47,7 +41,7 @@ module.exports = (joi, mongoose, {
   }) => {
     return commentJoi.validate(obj, config)
   }
-  const newsModel = mongoose.model('News', commentSchema)
+  const newsModel = mongoose.model('Comment', commentSchema)
   newsModel.syncIndexes()
   return newsModel
 }

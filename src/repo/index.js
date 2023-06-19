@@ -13,6 +13,7 @@ const repo = (container) => {
   const questionRepo = require('./question/questionRepo')(container)
   const partSubjectRepo = require('./partSubject/partSubjectRepo')(container)
   const favoriteExamRepo = require('./exam/favoriteExamRepo')(container)
+  const commentRepo = require('./comment/commentRepo')(container)
   return {
     sessionRepo,
     userRepo,
@@ -27,7 +28,8 @@ const repo = (container) => {
     examRepo,
     questionRepo,
     partSubjectRepo,
-    favoriteExamRepo
+    favoriteExamRepo,
+    commentRepo
   }
 }
 const connect = (container) => {
