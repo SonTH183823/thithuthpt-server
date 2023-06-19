@@ -19,17 +19,37 @@ module.exports = (container) => {
         ids,
         startTime,
         endTime,
-        title
+        title,
+        rate,
+        maxques,
+        time
       } = req.query
       page = +page || 1
       perPage = +perPage || 10
       sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
-      const skip = (page - 1) * perPage
       const search = { ...req.query }
       if (search.slug) {
         search.slug = serverHelper.stringToSlug(search.slug)
       }
-      const pipe = {}
+      let pipe = {}
+      if (maxques) {
+        pipe = {
+          $expr: {
+            $lte: [
+              {
+                $size: '$questionIds'
+              },
+              +maxques
+            ]
+          }
+        }
+      }
+      if (rate) {
+        pipe.rate = { $lte: +rate, $gte: +rate - 0.5 }
+      }
+      if (time) {
+        pipe.time = { $lte: +time }
+      }
       if (title) {
         pipe.slug = new RegExp(serverHelper.stringToSlug(title).replace(/\\/g, '\\\\'), 'gi')
       }
@@ -53,6 +73,9 @@ module.exports = (container) => {
       delete search.startTime
       delete search.endTime
       delete search.title
+      delete search.rate
+      delete search.time
+      delete search.maxques
 
       Object.keys(search).forEach(key => {
         const value = search[key]
@@ -67,7 +90,7 @@ module.exports = (container) => {
           pipe[key] = value
         }
       })
-      const data = await examRepo.getListExam(pipe, perPage, skip, sort)
+      const data = await examRepo.getExamNoPaging(pipe)
       const total = await examRepo.getCount(pipe)
       return res.status(httpCode.SUCCESS).json({
         data,
@@ -100,73 +123,16 @@ module.exports = (container) => {
     }
   }
   const getExamRelated = async (req, res) => {
-    const { id } = req.params
     try {
-      let {
-        page,
-        perPage,
-        sort,
-        ids,
-        startTime,
-        endTime,
-        title
-      } = req.query
-      page = +page || 1
-      perPage = +perPage || 10
-      sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
-      const skip = (page - 1) * perPage
-      const search = { ...req.query }
-      if (search.slug) {
-        search.slug = serverHelper.stringToSlug(search.slug)
+      let { id } = req.params
+      const { subject } = req.query
+      id = decodeURI(id)
+      const query = { _id: { $ne: id }, subject }
+      const news = await examRepo.getExamNoPaging(query)
+      if (news) {
+        return res.status(httpCode.SUCCESS).json(news)
       }
-      const pipe = {}
-      if (title) {
-        pipe.slug = new RegExp(serverHelper.stringToSlug(title).replace(/\\/g, '\\\\'), 'gi')
-      }
-      if (ids) {
-        if (ids.constructor === Array) {
-          pipe._id = { $in: ids }
-        } else if (ids.constructor === String) {
-          pipe._id = { $in: ids.split(',') }
-        }
-      }
-      if (startTime) {
-        pipe.createdAt = { $gte: startTime }
-      }
-      if (endTime) {
-        pipe.createdAt = { ...pipe.createdAt, $lte: endTime }
-      }
-      delete search.ids
-      delete search.page
-      delete search.perPage
-      delete search.sort
-      delete search.startTime
-      delete search.endTime
-      delete search.title
-
-      Object.keys(search).forEach(key => {
-        const value = search[key]
-        const pathType = (Exam.schema.path(key) || {}).instance || ''
-        if (pathType.toLowerCase() === 'objectid') {
-          pipe[key] = value ? ObjectId(value) : { $exists: false }
-        } else if (pathType === 'Number') {
-          pipe[key] = +value ? +value : 0
-        } else if (pathType === 'String' && value.constructor === String) {
-          pipe[key] = serverHelper.formatRegex(value)
-        } else {
-          pipe[key] = value
-        }
-      })
-      const data = await examRepo.getListExam(pipe, perPage, skip, sort)
-      const filterDt = data.filter(item => item._id !== id)
-      const total = await examRepo.getCount(pipe)
-      return res.status(httpCode.SUCCESS).json({
-        data: filterDt,
-        page,
-        perPage,
-        sort,
-        total
-      })
+      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
     } catch (e) {
       logger.e(e)
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
