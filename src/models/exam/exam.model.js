@@ -19,9 +19,14 @@ module.exports = (joi, mongoose, {
     NANGCAO: 3,
     KHO: 4
   }
+  const typeCateToeic = {
+    BODE: 1,
+    RUTGON: 2
+  }
   const ObjectId = mongoose.Types.ObjectId
   const examJoi = joi.object({
     subject: joi.number().valid(...Object.values(categoryConfig)).required(),
+    cateToeic: joi.number().valid(...Object.values(typeCateToeic)),
     level: joi.number().valid(...Object.values(level)).required(),
     title: joi.string().required(),
     thumbnail: joi.string().allow(''),

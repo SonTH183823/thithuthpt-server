@@ -5,6 +5,7 @@ module.exports = (app, container) => {
   const { verifyTokenCMS } = container.resolve('middleware')
 
   app.get(`${basePathCMS}/exam`, verifyTokenCMS, examController.getListExam)
+  app.get(`${basePathCMS}/examToeic`, verifyTokenCMS, examController.getListToeic)
   app.get(`${basePathCMS}/exam/:id`, verifyTokenCMS, examController.getExamById)
   app.post(`${basePathCMS}/exam`, verifyTokenCMS, examController.createExam)
   app.put(`${basePathCMS}/exam/question/:id`, verifyTokenCMS, examController.updateQuestion)
