@@ -24,6 +24,20 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+  const getCommentStatusByListCommentIdAndUser = async (req, res) => {
+    try {
+      const { commentIds, userId } = req.query
+      const ids = commentIds.split(',').map(va => ObjectId(va))
+      const data = await commentStatusRepo.getCommentStatusNoPaging({
+        userId: ObjectId(userId),
+        commentId: { $in: ids }
+      })
+      return res.status(httpCode.SUCCESS).json(data)
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   const removeCommentStatusById = async (req, res) => {
     try {
       const { id } = req.params
@@ -155,6 +169,7 @@ module.exports = (container) => {
     updateCommentStatusById,
     createCommentStatus,
     getListCommentStatus,
-    toggleComentStatus
+    toggleComentStatus,
+    getCommentStatusByListCommentIdAndUser
   }
 }
