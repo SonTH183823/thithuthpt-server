@@ -87,7 +87,7 @@ module.exports = (container) => {
   const getListFavoriteExams = async (req, res) => {
     try {
       let {
-        page, perPage, sort, ids
+        page, perPage, sort
       } = req.query
       page = +page || 1
       perPage = +perPage || 10
@@ -95,19 +95,10 @@ module.exports = (container) => {
       const skip = (page - 1) * perPage
       const search = { ...req.query }
       const pipe = {}
-
-      if (ids) {
-        if (ids.constructor === Array) {
-          pipe._id = { $in: ids }
-        } else if (ids.constructor === String) {
-          pipe._id = { $in: ids.split(',') }
-        }
-      }
-      delete search.ids
       delete search.page
       delete search.perPage
-      delete search.sort
 
+      delete search.sort
       Object.keys(search).forEach(key => {
         const value = search[key]
         const pathType = (FavoriteExam.schema.path(key) || {}).instance || ''

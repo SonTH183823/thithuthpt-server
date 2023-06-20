@@ -29,7 +29,7 @@ module.exports = (container) => {
       const { id } = req.params
       if (id && id.length === 24) {
         await commentRepo.deleteComment(id)
-        return res.status(httpCode.SUCCESS).json({})
+        return res.status(httpCode.SUCCESS).json({ ok: true })
       }
       return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
     } catch (e) {

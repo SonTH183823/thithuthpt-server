@@ -27,7 +27,7 @@ module.exports = container => {
     return Comment.aggregate(pipe)
   }
   const getComment = (pipe, limit, skip, sort) => {
-    return Comment.find(pipe).limit(limit).skip(skip).sort(sort)
+    return Comment.find(pipe).limit(limit).skip(skip).sort(sort).populate('userId')
   }
   const getCommentNoPaging = (pipe) => {
     return Comment.find(pipe)

@@ -24,7 +24,7 @@ module.exports = (joi, mongoose, {
     },
     userId: {
       type: ObjectId,
-      ref: 'User'
+      ref: 'user'
     }
   }, {
     createdAt: {
