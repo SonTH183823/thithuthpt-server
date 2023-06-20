@@ -28,4 +28,5 @@ module.exports = (app, container) => {
 
   //comment
   require('./WEB/comment/commentApi')(app, container)
+  require('./WEB/comment/commentStatusApi')(app, container)
 }
