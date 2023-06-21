@@ -20,6 +20,9 @@ module.exports = (container) => {
   //comment
   const commentController = require('./comment/commentController')(container)
   const commentStatusController = require('./comment/commentStatusController')(container)
+
+  //document
+  const documentController = require('./document/documentController')(container)
   return {
     userController,
     newsController,
@@ -33,6 +36,7 @@ module.exports = (container) => {
     partSubjectController,
     favoriteExamController,
     commentController,
-    commentStatusController
+    commentStatusController,
+    documentController
   }
 }
