@@ -47,6 +47,7 @@ module.exports = container => {
   const FavoriteExam = require('./exam/favoriteExam.model')(joi, mongoose, { joi2MongoSchema })
   const Comment = require('./comment/comment.model')(joi, mongoose, { joi2MongoSchema })
   const CommentStatus = require('./comment/commentStatus.model')(joi, mongoose, { joi2MongoSchema })
+  const Document = require('./document/document.model')(joi, mongoose, { joi2MongoSchema })
 
   const schemas = {
     mongoose: {
@@ -64,7 +65,8 @@ module.exports = container => {
     Question,
     FavoriteExam,
     Comment,
-    CommentStatus
+    CommentStatus,
+    Document
   }
   const schemaValidator = (obj, type) => {
     if (type === 'Login') {
