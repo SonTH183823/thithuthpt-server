@@ -32,8 +32,8 @@ module.exports = container => {
   const getListQuestionDocument = (id) => {
     return Document.findOne(id).populate('questionIds')
   }
-  const getDocumentNoPaging = (pipe) => {
-    return Document.find(pipe)
+  const getDocumentNoPaging = (pipe, limit) => {
+    return Document.find(pipe).limit(limit)
   }
   const removeDocument = (pipe) => {
     return Document.deleteMany(pipe)

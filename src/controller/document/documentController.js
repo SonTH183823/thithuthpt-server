@@ -66,9 +66,11 @@ module.exports = (container) => {
   const getDocumentRelated = async (req, res) => {
     try {
       let { id } = req.params
+      let { subject, perPage } = req.query
+      perPage = +perPage || 10
       id = decodeURI(id)
-      const query = { _id: { $ne: id } }
-      const news = await documentRepo.getDocumentNoPaging(query)
+      const query = { _id: { $ne: id }, subject }
+      const news = await documentRepo.getDocumentNoPaging(query, perPage)
       if (news) {
         return res.status(httpCode.SUCCESS).json(news)
       }
@@ -80,10 +82,7 @@ module.exports = (container) => {
   }
   const getNewestDocument = async (req, res) => {
     try {
-      let { id } = req.params
-      id = decodeURI(id)
-      const query = { _id: { $ne: id }, subject }
-      const news = await documentRepo.getDocumentNoPaging(query)
+      const news = await documentRepo.getDocumentNoPaging()
       if (news) {
         return res.status(httpCode.SUCCESS).json(news)
       }

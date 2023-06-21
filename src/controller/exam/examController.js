@@ -22,7 +22,8 @@ module.exports = (container) => {
         title,
         rate,
         maxques,
-        time
+        time,
+        subject
       } = req.query
       page = +page || 1
       perPage = +perPage || 10
@@ -66,6 +67,11 @@ module.exports = (container) => {
       if (endTime) {
         pipe.createdAt = { ...pipe.createdAt, $lte: endTime }
       }
+      if (subject) {
+        pipe.subject = subject
+      } else {
+        pipe.subject = { $lte: 8 }
+      }
       delete search.ids
       delete search.page
       delete search.perPage
@@ -76,6 +82,7 @@ module.exports = (container) => {
       delete search.rate
       delete search.time
       delete search.maxques
+      delete search.subject
 
       Object.keys(search).forEach(key => {
         const value = search[key]
@@ -90,7 +97,6 @@ module.exports = (container) => {
           pipe[key] = value
         }
       })
-      pipe.subject = { $lte: 8 }
       const data = await examRepo.getListExam(pipe)
       const total = await examRepo.getCount(pipe)
       return res.status(httpCode.SUCCESS).json({

@@ -6,6 +6,6 @@ module.exports = (app, container) => {
 
   app.get(`${basePath}/document`, verifyToken, documentController.getListDocument)
   app.get(`${basePath}/document/related/:id`, verifyToken, documentController.getDocumentRelated)
-  app.get(`${basePath}/document/newest`, verifyToken, documentController.getNewestDocument)
+  app.get(`${basePath}/newestDocument`, verifyToken, documentController.getNewestDocument)
   app.get(`${basePath}/document/:id`, verifyToken, documentController.getDocumentById)
 }
