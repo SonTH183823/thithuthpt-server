@@ -16,53 +16,25 @@ module.exports = (container) => {
         page,
         perPage,
         sort,
-        ids,
-        startTime,
-        endTime,
-        title,
-        rate,
-        time
+        title
       } = req.query
       page = +page || 1
       perPage = +perPage || 10
       sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
+      const skip = (page - 1) * perPage
       const search = { ...req.query }
       if (search.slug) {
         search.slug = serverHelper.stringToSlug(search.slug)
       }
       let pipe = {}
-      if (rate) {
-        pipe.rate = { $lte: +rate, $gte: +rate - 0.5 }
-      }
-      if (time) {
-        pipe.time = { $lte: +time }
-      }
       if (title) {
         pipe.slug = new RegExp(serverHelper.stringToSlug(title).replace(/\\/g, '\\\\'), 'gi')
       }
-      if (ids) {
-        if (ids.constructor === Array) {
-          pipe._id = { $in: ids }
-        } else if (ids.constructor === String) {
-          pipe._id = { $in: ids.split(',') }
-        }
-      }
-      if (startTime) {
-        pipe.createdAt = { $gte: startTime }
-      }
-      if (endTime) {
-        pipe.createdAt = { ...pipe.createdAt, $lte: endTime }
-      }
-      delete search.ids
+
       delete search.page
       delete search.perPage
       delete search.sort
-      delete search.startTime
-      delete search.endTime
       delete search.title
-      delete search.rate
-      delete search.time
-      delete search.maxques
 
       Object.keys(search).forEach(key => {
         const value = search[key]
@@ -77,8 +49,7 @@ module.exports = (container) => {
           pipe[key] = value
         }
       })
-      pipe.subject = { $lte: 8 }
-      const data = await documentRepo.getListDocument(pipe)
+      const data = await documentRepo.getListDocument(pipe, perPage, skip, sort)
       const total = await documentRepo.getCount(pipe)
       return res.status(httpCode.SUCCESS).json({
         data,
@@ -92,15 +63,12 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
-  const getListQuestionDocument = async (req, res) => {
+  const getDocumentRelated = async (req, res) => {
     try {
       let { id } = req.params
       id = decodeURI(id)
-      const query = { $or: [{ slug: id }] }
-      if (id.match(/^[0-9a-fA-F]{24}$/)) {
-        query.$or.push({ _id: id })
-      }
-      const news = await documentRepo.getListQuestionDocument(query)
+      const query = { _id: { $ne: id } }
+      const news = await documentRepo.getDocumentNoPaging(query)
       if (news) {
         return res.status(httpCode.SUCCESS).json(news)
       }
@@ -110,10 +78,9 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
-  const getDocumentRelated = async (req, res) => {
+  const getNewestDocument = async (req, res) => {
     try {
       let { id } = req.params
-      const { subject } = req.query
       id = decodeURI(id)
       const query = { _id: { $ne: id }, subject }
       const news = await documentRepo.getDocumentNoPaging(query)
@@ -260,6 +227,6 @@ module.exports = (container) => {
     updateDocumentById,
     createDocument,
     getDocumentRelated,
-    getListQuestionDocument
+    getNewestDocument
   }
 }

@@ -120,6 +120,7 @@ module.exports = (container) => {
       } = req.query
       page = +page || 1
       perPage = +perPage || 10
+      const skip = (page - 1) * perPage
       sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
       const search = { ...req.query }
       if (search.slug) {
@@ -172,7 +173,7 @@ module.exports = (container) => {
           pipe[key] = value
         }
       })
-      const data = await examRepo.getListExam(pipe)
+      const data = await examRepo.getListExam(pipe, perPage, skip, sort)
       const total = await examRepo.getCount(pipe)
       return res.status(httpCode.SUCCESS).json({
         data,
