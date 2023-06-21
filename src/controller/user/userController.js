@@ -52,6 +52,7 @@ module.exports = container => {
       versionCode,
       deviceName
     }
+    let userId
     let token = ''
     let hash = ''
     let isLogin = false
@@ -61,6 +62,7 @@ module.exports = container => {
       if (user.isLocked) {
         return user
       }
+      userId = user._id.toString()
       isLogin = true
       const update = {}
       if (name && !user.name) {
@@ -89,8 +91,11 @@ module.exports = container => {
         uid,
         fcmToken
       })
+      userResponse = userResponse.toObject()
+      userId = userResponse._id.toString()
     }
     token = serverHelper.genToken({
+      userId,
       uid,
       fcmToken,
       name,

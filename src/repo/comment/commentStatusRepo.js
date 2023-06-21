@@ -20,6 +20,10 @@ module.exports = container => {
   const checkIdExist = (id) => {
     return CommentStatus.findOne({ id })
   }
+
+  const findOne = async (pipe) => {
+    return CommentStatus.findOne(pipe)
+  }
   const getCount = (pipe = {}) => {
     return CommentStatus.countDocuments(pipe)
   }
@@ -37,6 +41,7 @@ module.exports = container => {
   }
   return {
     getCommentStatusNoPaging,
+    findOne,
     removeCommentStatus,
     createCommentStatus,
     getCommentStatusAgg,

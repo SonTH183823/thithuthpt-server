@@ -26,8 +26,9 @@ module.exports = (container) => {
   }
   const getCommentStatusByListCommentIdAndUser = async (req, res) => {
     try {
-      const { commentIds, userId } = req.query
-      const ids = commentIds.split(',').map(va => ObjectId(va))
+      const { commentId } = req.query
+      const { userId } = req.user
+      const ids = commentId.split(',').map(va => ObjectId(va))
       const data = await commentStatusRepo.getCommentStatusNoPaging({
         userId: ObjectId(userId),
         commentId: { $in: ids }
@@ -136,31 +137,18 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
-  const toggleComentStatus = async (req, res) => {
+
+  const delCommentStatusNotId = async (req, res) => {
     try {
-      const { userId, examId } = req.body
-      if (userId && examId) {
-        const data = await commentStatusRepo.findOne({ userId, examId })
-        if (!data) {
-          const {
-            error, value
-          } = await schemaValidator({ userId, examId }, 'CommentStatus')
-          if (error) {
-            logger.e(error)
-            return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
-          }
-          const rate = await commentStatusRepo.createCommentStatus(value)
-          return res.status(httpCode.CREATED).json({ ...rate, ok: true })
-        } else {
-          await commentStatusRepo.deleteCommentStatus(data._id)
-          return res.status(httpCode.SUCCESS).json({ ok: true })
-        }
-      } else {
-        return res.sendStatus(httpCode.BAD_REQUEST)
+      const { commentId, userId } = req.query
+      const hasOne = await commentStatusRepo.findOne({ userId, commentId })
+      if (hasOne) {
+        await commentStatusRepo.removeCommentStatusById(hasOne._id)
+        return res.status(httpCode.SUCCESS).json({ ok: true })
       }
     } catch (e) {
-      console.log(e)
-      return res.sendStatus(httpCode.UNKNOWN_ERROR)
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
   return {
@@ -169,7 +157,7 @@ module.exports = (container) => {
     updateCommentStatusById,
     createCommentStatus,
     getListCommentStatus,
-    toggleComentStatus,
-    getCommentStatusByListCommentIdAndUser
+    getCommentStatusByListCommentIdAndUser,
+    delCommentStatusNotId
   }
 }

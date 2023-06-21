@@ -10,13 +10,9 @@ module.exports = (joi, mongoose, {
   const commentJoi = joi.object({
     commentId: joi.string().required(),
     userId: joi.string().required(),
-    postId: joi.string(),
     status: joi.number().valid(...Object.values(statusConfig)).required()
   })
   const commentStatusSchema = joi2MongoSchema(commentJoi, {
-    postId: {
-      type: ObjectId
-    },
     commentId: {
       type: ObjectId,
       ref: 'Comment'
