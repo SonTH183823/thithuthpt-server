@@ -27,7 +27,6 @@ module.exports = (joi, mongoose, {
     active: joi.number().valid(0, 1).default(0),
     createdBy: joi.string(),
     delete: joi.number().valid(0, 1).default(0),
-    questionIds: joi.array().items(joi.string()).default([]),
     rate: joi.number().default(0),
     outstanding: joi.number().default(0),
     keyword: joi.string()
