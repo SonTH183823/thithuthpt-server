@@ -32,8 +32,8 @@ module.exports = container => {
   const getListQuestionExam = (id) => {
     return Exam.findOne(id).populate('questionIds')
   }
-  const getExamNoPaging = (pipe) => {
-    return Exam.find(pipe)
+  const getExamNoPaging = (pipe, limit) => {
+    return Exam.find(pipe).limit(limit)
   }
   const removeExam = (pipe) => {
     return Exam.deleteMany(pipe)

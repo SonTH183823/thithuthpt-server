@@ -67,7 +67,7 @@ module.exports = (container) => {
     try {
       let { id } = req.params
       let { subject, perPage } = req.query
-      perPage = +perPage || 10
+      perPage = +perPage || 5
       id = decodeURI(id)
       const query = { _id: { $ne: id }, subject }
       const news = await documentRepo.getDocumentNoPaging(query, perPage)

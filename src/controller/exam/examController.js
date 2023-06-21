@@ -214,10 +214,11 @@ module.exports = (container) => {
   const getExamRelated = async (req, res) => {
     try {
       let { id } = req.params
-      const { subject } = req.query
+      let { subject, perPage } = req.query
+      perPage = +perPage || 5
       id = decodeURI(id)
       const query = { _id: { $ne: id }, subject }
-      const news = await examRepo.getExamNoPaging(query)
+      const news = await examRepo.getExamNoPaging(query, perPage)
       if (news) {
         return res.status(httpCode.SUCCESS).json(news)
       }
