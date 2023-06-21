@@ -14,6 +14,7 @@ module.exports = (app, container) => {
   require('./WEB/news/tagApi')(app, container)
   require('./WEB/news/newsApi')(app, container)
   require('./WEB/rate/rateApi')(app, container)
+  require('./WEB/partSubject/partSubjectApi')(app, container)
 
   //upload
   require('./apiUpload')(app, container)
