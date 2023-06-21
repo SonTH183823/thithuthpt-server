@@ -23,6 +23,7 @@ module.exports = (joi, mongoose, {
     link: joi.string().required(),
     slug: joi.string(),
     updatedAt: joi.number(),
+    numberView: joi.number().default(0),
     active: joi.number().valid(0, 1).default(0),
     createdBy: joi.string(),
     delete: joi.number().valid(0, 1).default(0),
