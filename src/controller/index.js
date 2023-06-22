@@ -10,6 +10,7 @@ module.exports = (container) => {
 
   //rate
   const rateController = require('./rate/rateController')(container)
+  const ratePostController = require('./ratePost/ratePostController')(container)
 
   //exam-question
   const examController = require('./exam/examController')(container)
@@ -37,6 +38,7 @@ module.exports = (container) => {
     favoriteExamController,
     commentController,
     commentStatusController,
-    documentController
+    documentController,
+    ratePostController
   }
 }

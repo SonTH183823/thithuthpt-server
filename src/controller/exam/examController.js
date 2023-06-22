@@ -1,7 +1,7 @@
 module.exports = (container) => {
   const logger = container.resolve('logger')
   const { httpCode, serverHelper } = container.resolve('config')
-  const { examRepo, questionRepo } = container.resolve('repo')
+  const { examRepo, questionRepo, documentRepo } = container.resolve('repo')
   const ObjectId = container.resolve('ObjectId')
   const {
     schemaValidator,
@@ -417,6 +417,25 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+  const getTotalExam = async (req, res) => {
+    try {
+      const exam = await examRepo.getCount()
+      const ques = await questionRepo.getCount()
+      const docs = await documentRepo.getCount()
+      if (exam && ques) {
+        return res.status(httpCode.SUCCESS).json({
+          totalExam: exam,
+          totalQuestion: ques,
+          totalDocument: docs
+        })
+      }
+      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
+
   return {
     getListExam,
     getExamById,
@@ -427,6 +446,7 @@ module.exports = (container) => {
     getExamRelated,
     getListQuestionExam,
     getListToeic,
-    updateQuestionToeic
+    updateQuestionToeic,
+    getTotalExam
   }
 }
