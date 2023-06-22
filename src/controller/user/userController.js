@@ -413,6 +413,17 @@ module.exports = container => {
     }
   }
 
+  const getUserById = async (req, res) => {
+    try {
+      const { id } = req.params
+      const user = await userRepo.getUserById(id)
+      res.status(httpCode.SUCCESS).json({ data: user })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ ok: false })
+    }
+  }
+
   const getAllUserWebsite = async (req, res) => {
     try {
       let {
@@ -543,6 +554,7 @@ module.exports = container => {
     updateUsersById,
     verifyToken,
     getListUserByIds,
+    getUserById,
     getUserFromCache,
     updateSelfInfo,
     getAllUserWebsite,
