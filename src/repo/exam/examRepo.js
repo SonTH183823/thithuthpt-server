@@ -30,7 +30,7 @@ module.exports = container => {
     return Exam.find(pipe).limit(limit).skip(skip).sort(sort)
   }
   const getListQuestionExam = (id) => {
-    return Exam.findOne(id).populate('questionIds')
+    return Exam.findOne(id).populate('questionIds listeningQuestion readingQuestion')
   }
   const getExamNoPaging = (pipe, limit) => {
     return Exam.find(pipe).limit(limit)

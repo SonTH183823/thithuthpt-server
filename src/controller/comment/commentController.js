@@ -61,6 +61,36 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+
+  const updateReactCommentById = async (req, res) => {
+    try {
+      const { id } = req.params
+      const { like, dislike } = req.body
+      if (id && id.length === 24) {
+        const item = await commentRepo.getCommentById(id)
+        const data = item.toObject()
+        data.like = like
+        data.dislike = dislike
+        data.postId = data.postId.toString()
+        data.userId = data.userId.toString()
+        if (item) {
+          const {
+            error, value
+          } = await schemaValidator(data, 'Comment')
+          if (error) {
+            logger.e(error)
+            return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
+          }
+          await commentRepo.updateComment(id, value)
+          return res.status(httpCode.SUCCESS).json({ ok: true })
+        }
+      }
+      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   const createComment = async (req, res) => {
     try {
       const data = req.body
@@ -125,6 +155,11 @@ module.exports = (container) => {
     }
   }
   return {
-    getCommentById, removeCommentById, updateCommentById, createComment, getListComment
+    getCommentById,
+    removeCommentById,
+    updateCommentById,
+    createComment,
+    getListComment,
+    updateReactCommentById
   }
 }

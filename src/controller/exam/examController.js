@@ -384,6 +384,39 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+  const updateQuestionToeic = async (req, res) => {
+    try {
+      const { listQuestion, type, listeningFile } = req.body
+      const { id } = req.params
+      const qq = []
+      for (const va of listQuestion) {
+        const { error, value } = schemaValidator(va, 'Question')
+        if (error) {
+          return res.status(httpCode.BAD_REQUEST).json({ msg: 'loi roi' })
+        }
+        const v = questionRepo.createQuestion(value)
+        qq.push(v)
+      }
+      const aa = await Promise.all(qq)
+      const ids = []
+      for (let a of aa) {
+        a = a.toObject()
+        ids.push(a._id)
+      }
+      if (type === 'Listening') {
+        await examRepo.updateExam(id, { listeningQuestion: ids, listeningFile })
+      } else {
+        await examRepo.updateExam(id, { readingQuestion: ids })
+      }
+      res.status(httpCode.SUCCESS).json({ ok: true })
+    } catch (e) {
+      logger.e(e)
+      if (e.code === 11000) {
+        return res.status(httpCode.BAD_REQUEST).json({ msg: 'Tiêu đề đã tồn tại!' })
+      }
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   return {
     getListExam,
     getExamById,
@@ -393,6 +426,7 @@ module.exports = (container) => {
     updateQuestion,
     getExamRelated,
     getListQuestionExam,
-    getListToeic
+    getListToeic,
+    updateQuestionToeic
   }
 }

@@ -8,4 +8,5 @@ module.exports = (app, container) => {
   app.post(`${basePath}/comment`, verifyToken, commentController.createComment)
   app.delete(`${basePath}/comment/:id`, verifyToken, commentController.removeCommentById)
   app.put(`${basePath}/comment/:id`, verifyToken, commentController.updateCommentById)
+  app.put(`${basePath}/reactComment/:id`, verifyToken, commentController.updateReactCommentById)
 }
