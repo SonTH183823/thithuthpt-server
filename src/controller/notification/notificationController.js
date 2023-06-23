@@ -207,10 +207,7 @@ module.exports = (container) => {
     try {
       const { userId } = req.user
       const notifications = await notificationRepo.getCount({ userId: ObjectId(userId), isViewed: 0 })
-      if (notifications) {
-        return res.status(httpCode.SUCCESS).json({ total: notifications })
-      }
-      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+      return res.status(httpCode.SUCCESS).json({ total: notifications })
     } catch (e) {
       logger.e(e)
       if (e.code === 11000) {
