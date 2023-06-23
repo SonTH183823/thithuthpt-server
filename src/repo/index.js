@@ -17,6 +17,7 @@ const repo = (container) => {
   const commentStatusRepo = require('./comment/commentStatusRepo')(container)
   const documentRepo = require('./document/documentRepo')(container)
   const ratePostRepo = require('./ratePost/ratePostRepo')(container)
+  const notificationRepo = require('./notification/notificationRepo')(container)
   return {
     sessionRepo,
     userRepo,
@@ -35,7 +36,8 @@ const repo = (container) => {
     commentRepo,
     commentStatusRepo,
     documentRepo,
-    ratePostRepo
+    ratePostRepo,
+    notificationRepo
   }
 }
 const connect = (container) => {

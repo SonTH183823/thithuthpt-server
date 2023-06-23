@@ -24,6 +24,9 @@ module.exports = (container) => {
 
   //document
   const documentController = require('./document/documentController')(container)
+
+  //notification
+  const notificationController = require('./notification/notificationController')(container)
   return {
     userController,
     newsController,
@@ -39,6 +42,7 @@ module.exports = (container) => {
     commentController,
     commentStatusController,
     documentController,
-    ratePostController
+    ratePostController,
+    notificationController
   }
 }

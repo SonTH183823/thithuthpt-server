@@ -178,12 +178,10 @@ module.exports = (container) => {
   }
   const createNotification = async (req, res) => {
     try {
-      const { username } = req.userCMS
+      const { userId } = req.user
       const body = req.body
       if (body) {
-        body.createdBy = username.toString()
-        body.slug = serverHelper.stringToSlug(body.title)
-        body.keyword = serverHelper.stringToSlugSearch(body.title)
+        body.userId = userId
         body.updatedAt = Math.floor(Date.now() / 1000)
         const {
           error,
