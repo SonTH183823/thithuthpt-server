@@ -49,6 +49,7 @@ module.exports = container => {
   const CommentStatus = require('./comment/commentStatus.model')(joi, mongoose, { joi2MongoSchema })
   const Document = require('./document/document.model')(joi, mongoose, { joi2MongoSchema })
   const RatePost = require('./ratePost/ratePost.model')(joi, mongoose, { joi2MongoSchema })
+  const Notification = require('./notification/notification.model')(joi, mongoose, { joi2MongoSchema })
 
   const schemas = {
     mongoose: {
@@ -68,7 +69,8 @@ module.exports = container => {
     Comment,
     CommentStatus,
     Document,
-    RatePost
+    RatePost,
+    Notification
   }
   const schemaValidator = (obj, type) => {
     if (type === 'Login') {
