@@ -27,7 +27,7 @@ module.exports = container => {
     return History.aggregate(pipe)
   }
   const getListHistory = (pipe, limit, skip, sort) => {
-    return History.find(pipe).limit(limit).skip(skip).sort(sort)
+    return History.find(pipe).limit(limit).skip(skip).sort(sort).populate('examId')
   }
   const getListQuestionHistory = (id) => {
     return History.findOne(id).populate('questionIds listeningQuestion readingQuestion')

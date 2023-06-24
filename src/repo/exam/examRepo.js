@@ -42,7 +42,7 @@ module.exports = container => {
     return Exam.findOne(id)
   }
   const getExamQuestion = async (id) => {
-    return Exam.findOne(id).populate('questionIds listeningQuestion readingQuestion')
+    return Exam.findById(id).populate('questionIds listeningQuestion readingQuestion')
   }
   const findOne = async (pipe) => {
     return Exam.findOne(pipe)

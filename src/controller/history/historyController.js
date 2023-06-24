@@ -24,6 +24,7 @@ module.exports = (container) => {
       page = +page || 1
       perPage = +perPage || 10
       sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
+      const skip = (page - 1) * perPage
       const search = { ...req.query }
       let pipe = {}
       pipe.userId = ObjectId(userId)
@@ -59,7 +60,7 @@ module.exports = (container) => {
           pipe[key] = value
         }
       })
-      const data = await historyRepo.getListHistory(pipe)
+      const data = await historyRepo.getListHistory(pipe, perPage, skip, sort)
       const total = await historyRepo.getCount(pipe)
       return res.status(httpCode.SUCCESS).json({
         data,
@@ -229,7 +230,7 @@ module.exports = (container) => {
       const { userId } = req.user
       const body = req.body
       if (body && body.examId) {
-        const exam = examRepo.getExamQuestion(body.examId)
+        const exam = await examRepo.getExamQuestion(ObjectId(body.examId))
         if (exam) {
           if (body.subject !== 9) {
             const {
@@ -240,6 +241,7 @@ module.exports = (container) => {
             body.point = numRight / exam.numberQuestion
             body.rsTypeQuestion = rsTypeQuestion
           } else {
+            body.cateToeic = exam.cateToeic
             body.numberListeningQuestionRight = serverHelper.caculatorResultToeic(body.listListeningAnswer, exam.listeningQuestion)
             body.numberReadingQuestionRight = serverHelper.caculatorResultToeic(body.listListeningAnswer, exam.listeningQuestion)
             const rsTypeQuestion = []
@@ -258,6 +260,7 @@ module.exports = (container) => {
             }
             body.rsTypeQuestion = rsTypeQuestion
           }
+          body.subject = exam.subject
           body.updatedAt = Math.floor(Date.now() / 1000)
           body.userId = userId
           const {

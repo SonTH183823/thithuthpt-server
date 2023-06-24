@@ -18,6 +18,7 @@ module.exports = (joi, mongoose, {
     RUTGON: 2
   }
   const answerConfig = {
+    NO: 0,
     A: 1,
     B: 2,
     C: 3,
@@ -45,14 +46,14 @@ module.exports = (joi, mongoose, {
     }).allow({}))
   })
   const historySchema = joi2MongoSchema(historyJoi, {
-    examId: [{
+    examId: {
       type: ObjectId,
       ref: 'Exam'
-    }],
-    userId: [{
+    },
+    userId: {
       type: ObjectId,
       ref: 'user'
-    }]
+    }
   }, {
     createdAt: {
       type: Number,

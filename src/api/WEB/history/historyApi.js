@@ -8,4 +8,5 @@ module.exports = (app, container) => {
   app.get(`${basePath}/totalHistory`, verifyToken, historyController.getTotalHistory)
   app.get(`${basePath}/historyToeic`, verifyToken, historyController.getListToeic)
   app.get(`${basePath}/history/:id`, verifyToken, historyController.getHistoryById)
+  app.post(`${basePath}/finishExam`, verifyToken, historyController.createHistory)
 }
