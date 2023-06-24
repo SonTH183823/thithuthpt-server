@@ -41,6 +41,9 @@ module.exports = container => {
   const getExam = async (id) => {
     return Exam.findOne(id)
   }
+  const getExamQuestion = async (id) => {
+    return Exam.findOne(id).populate('questionIds listeningQuestion readingQuestion')
+  }
   const findOne = async (pipe) => {
     return Exam.findOne(pipe)
   }
@@ -69,6 +72,7 @@ module.exports = container => {
     getListExam,
     updateMany,
     findExam,
-    getListQuestionExam
+    getListQuestionExam,
+    getExamQuestion
   }
 }

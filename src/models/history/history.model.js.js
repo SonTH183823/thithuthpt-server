@@ -37,7 +37,12 @@ module.exports = (joi, mongoose, {
     numberListeningQuestionRight: joi.number(),
     numberReadingQuestionRight: joi.number(),
     point: joi.number().default(0),
-    timeSpent: joi.number()
+    timeSpent: joi.number(),
+    rsTypeQuestion: joi.array().items(joi.object({
+      id: joi.string(),
+      label: joi.string(),
+      value: joi.number()
+    }).allow({}))
   })
   const historySchema = joi2MongoSchema(historyJoi, {
     examId: [{

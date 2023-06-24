@@ -1,7 +1,7 @@
 module.exports = (container) => {
   const logger = container.resolve('logger')
   const { httpCode, serverHelper } = container.resolve('config')
-  const { historyRepo } = container.resolve('repo')
+  const { historyRepo, examRepo } = container.resolve('repo')
   const ObjectId = container.resolve('ObjectId')
   const {
     schemaValidator,
@@ -40,66 +40,6 @@ module.exports = (container) => {
       }
       delete search.page
       delete search.userId
-      delete search.perPage
-      delete search.sort
-      delete search.startTime
-      delete search.endTime
-      delete search.subject
-
-      Object.keys(search).forEach(key => {
-        const value = search[key]
-        const pathType = (History.schema.path(key) || {}).instance || ''
-        if (pathType.toLowerCase() === 'objectid') {
-          pipe[key] = value ? ObjectId(value) : { $exists: false }
-        } else if (pathType === 'Number') {
-          pipe[key] = +value ? +value : 0
-        } else if (pathType === 'String' && value.constructor === String) {
-          pipe[key] = serverHelper.formatRegex(value)
-        } else {
-          pipe[key] = value
-        }
-      })
-      const data = await historyRepo.getListHistory(pipe)
-      const total = await historyRepo.getCount(pipe)
-      return res.status(httpCode.SUCCESS).json({
-        data,
-        page,
-        perPage,
-        sort,
-        total
-      })
-    } catch (e) {
-      logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
-    }
-  }
-  const getListHistoryByUser = async (req, res) => {
-    try {
-      let {
-        page,
-        perPage,
-        sort,
-        startTime,
-        endTime,
-        subject
-      } = req.query
-      page = +page || 1
-      perPage = +perPage || 10
-      sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
-      const search = { ...req.query }
-      let pipe = {}
-      if (startTime) {
-        pipe.createdAt = { $gte: startTime }
-      }
-      if (endTime) {
-        pipe.createdAt = { ...pipe.createdAt, $lte: endTime }
-      }
-      if (subject) {
-        pipe.subject = subject
-      } else {
-        pipe.subject = { $lte: 8 }
-      }
-      delete search.page
       delete search.perPage
       delete search.sort
       delete search.startTime
@@ -183,41 +123,6 @@ module.exports = (container) => {
         sort,
         total
       })
-    } catch (e) {
-      logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
-    }
-  }
-  const getListQuestionHistory = async (req, res) => {
-    try {
-      let { id } = req.params
-      id = decodeURI(id)
-      const query = { $or: [{ slug: id }] }
-      if (id.match(/^[0-9a-fA-F]{24}$/)) {
-        query.$or.push({ _id: id })
-      }
-      const news = await historyRepo.getListQuestionHistory(query)
-      if (news) {
-        return res.status(httpCode.SUCCESS).json(news)
-      }
-      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
-    } catch (e) {
-      logger.e(e)
-      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
-    }
-  }
-  const getHistoryRelated = async (req, res) => {
-    try {
-      let { id } = req.params
-      let { subject, perPage } = req.query
-      perPage = +perPage || 5
-      id = decodeURI(id)
-      const query = { _id: { $ne: id }, subject }
-      const news = await historyRepo.getHistoryNoPaging(query, perPage)
-      if (news) {
-        return res.status(httpCode.SUCCESS).json(news)
-      }
-      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
     } catch (e) {
       logger.e(e)
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
@@ -322,21 +227,51 @@ module.exports = (container) => {
   const createHistory = async (req, res) => {
     try {
       const { userId } = req.user
-      const data = req.params
       const body = req.body
-      if (body) {
-        body.updatedAt = Math.floor(Date.now() / 1000)
-        body.userId = userId
-        const {
-          error,
-          value
-        } = await schemaValidator(body, 'History')
-        if (error) {
-          logger.e(error)
-          return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
+      if (body && body.examId) {
+        const exam = examRepo.getExamQuestion(body.examId)
+        if (exam) {
+          if (body.subject !== 9) {
+            const {
+              numRight,
+              rsTypeQuestion
+            } = serverHelper.caculatorResultExam(body.listAnswer, exam.questionIds, exam.listTypeQuestion)
+            body.numberQuestionRight = numRight
+            body.point = numRight / exam.numberQuestion
+            body.rsTypeQuestion = rsTypeQuestion
+          } else {
+            body.numberListeningQuestionRight = serverHelper.caculatorResultToeic(body.listListeningAnswer, exam.listeningQuestion)
+            body.numberReadingQuestionRight = serverHelper.caculatorResultToeic(body.listListeningAnswer, exam.listeningQuestion)
+            const rsTypeQuestion = []
+            for (const item of exam.listTypeQuestion) {
+              const tmp = {
+                id: item._id,
+                label: item.label,
+                value: 0
+              }
+              if (item.label === 'Listening') {
+                tmp.value = body.numberListeningQuestionRight
+              } else if (item.label === 'Reading') {
+                tmp.value = body.numberReadingQuestionRight
+              }
+              rsTypeQuestion.push(tmp)
+            }
+            body.rsTypeQuestion = rsTypeQuestion
+          }
+          body.updatedAt = Math.floor(Date.now() / 1000)
+          body.userId = userId
+          const {
+            error,
+            value
+          } = await schemaValidator(body, 'History')
+          if (error) {
+            logger.e(error)
+            return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
+          }
+          const item = await historyRepo.createHistory(value)
+          return res.status(httpCode.CREATED).json(item)
         }
-        const news = await historyRepo.createHistory(value)
-        return res.status(httpCode.CREATED).json(news)
+        return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
       }
       return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
     } catch (e) {
@@ -368,10 +303,7 @@ module.exports = (container) => {
     removeHistoryById,
     updateHistoryById,
     createHistory,
-    getHistoryRelated,
-    getListQuestionHistory,
     getListToeic,
-    getTotalHistory,
-    getListHistoryByUser
+    getTotalHistory
   }
 }

@@ -75,6 +75,43 @@ const serverHelper = function () {
     return jwt.decode(token)
   }
 
+  function caculatorResultExam (listAnswer, listQuestion, listTypeQuestion) {
+    let numRight = 0
+    const rsTypeQuestion = []
+    for (const item of listTypeQuestion) {
+      const tmp = {
+        id: item._id,
+        label: item.label,
+        value: 0
+      }
+      rsTypeQuestion.push(tmp)
+    }
+    const checkListTypeQuestion = (question) => {
+      for (const idx in rsTypeQuestion) {
+        if (question.category === rsTypeQuestion[idx].id) {
+          rsTypeQuestion[idx].value = rsTypeQuestion[idx].value + 1
+          break
+        }
+      }
+    }
+    for (const index in listQuestion) {
+      checkListTypeQuestion(listQuestion[index])
+      if (listQuestion[index] === listQuestion[index]?.answer) {
+        numRight = numRight + 1
+      }
+    }
+    return { numRight, rsTypeQuestion }
+  }
+  function caculatorResultToeic (listAnswer, listQuestion) {
+    let numRight = 0
+    for (const index in listQuestion) {
+      if (listQuestion[index] === listQuestion[index]?.answer) {
+        numRight = numRight + 1
+      }
+    }
+    return numRight
+  }
+
   function getAvatar (url, provider) {
     switch (provider) {
       case 'facebook.com':
@@ -304,9 +341,10 @@ const serverHelper = function () {
     stringToSlugSearch,
     deepCompare,
     encryptPassword,
-    getRandomInt,
     genTokenCMS,
-    verifyTokenCMS
+    verifyTokenCMS,
+    caculatorResultExam,
+    caculatorResultToeic
   }
 }
 module.exports = {
