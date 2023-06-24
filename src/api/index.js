@@ -16,6 +16,7 @@ module.exports = (app, container) => {
   require('./WEB/rate/rateApi')(app, container)
   require('./WEB/partSubject/partSubjectApi')(app, container)
   require('./WEB/notification/notificationApi')(app, container)
+  require('./WEB/history/historyApi')(app, container)
 
   //upload
   require('./apiUpload')(app, container)
