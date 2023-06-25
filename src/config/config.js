@@ -75,17 +75,37 @@ const serverHelper = function () {
     return jwt.decode(token)
   }
 
+  function caculatorPointExam (numLisRight, numLis, numReadRight, numRead) {
+    if (numLis === numRead && numLis === 100) {
+      let pL = 5
+      let pR = 5
+      if (numLisRight > 0 && numLisRight < 76) {
+        pL = numLisRight * 5 + 10
+      } else if (numLisRight > 75 && numLisRight < 96) {
+        pL = numLisRight * 5 + 15
+      } else {
+        pL = 495
+      }
+      if (numReadRight > 2) pR = (numReadRight - 1) * 5
+      return pR + pL
+    } else {
+      return Math.floor((numLisRight / numLis + numReadRight / numRead) * 49.5)
+    }
+  }
+
   function caculatorResultExam (listAnswer, listQuestion, listTypeQuestion) {
     let numRight = 0
     const rsTypeQuestion = []
     for (const item of listTypeQuestion) {
       const tmp = {
-        id: item._id,
+        id: item.id,
         label: item.label,
-        value: 0
+        value: 0,
+        total: item.value
       }
       rsTypeQuestion.push(tmp)
     }
+
     const checkListTypeQuestion = (question) => {
       for (const idx in rsTypeQuestion) {
         if (question.category === rsTypeQuestion[idx].id) {
@@ -95,17 +115,18 @@ const serverHelper = function () {
       }
     }
     for (const index in listQuestion) {
-      checkListTypeQuestion(listQuestion[index])
-      if (listQuestion[index] === listQuestion[index]?.answer) {
+      if (listAnswer[index] === listQuestion[index].answer) {
+        checkListTypeQuestion(listQuestion[index])
         numRight = numRight + 1
       }
     }
     return { numRight, rsTypeQuestion }
   }
+
   function caculatorResultToeic (listAnswer, listQuestion) {
     let numRight = 0
     for (const index in listQuestion) {
-      if (listQuestion[index] === listQuestion[index]?.answer) {
+      if (listAnswer[index] === listQuestion[index]?.answer) {
         numRight = numRight + 1
       }
     }
@@ -344,7 +365,8 @@ const serverHelper = function () {
     genTokenCMS,
     verifyTokenCMS,
     caculatorResultExam,
-    caculatorResultToeic
+    caculatorResultToeic,
+    caculatorPointExam
   }
 }
 module.exports = {

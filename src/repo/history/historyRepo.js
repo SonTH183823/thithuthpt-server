@@ -29,6 +29,10 @@ module.exports = container => {
   const getListHistory = (pipe, limit, skip, sort) => {
     return History.find(pipe).limit(limit).skip(skip).sort(sort).populate('examId')
   }
+
+  const getListHistoryBXH = (pipe, limit, skip, sort) => {
+    return History.find(pipe).limit(limit).skip(skip).sort(sort).populate('userId')
+  }
   const getListQuestionHistory = (id) => {
     return History.findOne(id).populate('questionIds listeningQuestion readingQuestion')
   }
@@ -39,7 +43,7 @@ module.exports = container => {
     return History.deleteMany(pipe)
   }
   const getHistory = async (id) => {
-    return History.findOne(id)
+    return History.findOne(id).populate('examId')
   }
   const findOne = async (pipe) => {
     return History.findOne(pipe)
@@ -69,6 +73,7 @@ module.exports = container => {
     getListHistory,
     updateMany,
     findHistory,
-    getListQuestionHistory
+    getListQuestionHistory,
+    getListHistoryBXH
   }
 }

@@ -42,7 +42,8 @@ module.exports = (joi, mongoose, {
     rsTypeQuestion: joi.array().items(joi.object({
       id: joi.string(),
       label: joi.string(),
-      value: joi.number()
+      value: joi.number(),
+      total: joi.number()
     }).allow({}))
   })
   const historySchema = joi2MongoSchema(historyJoi, {

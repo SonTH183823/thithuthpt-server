@@ -74,6 +74,67 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+  const getListBHXByExamId = async (req, res) => {
+    try {
+      let {
+        page,
+        perPage,
+        startTime,
+        endTime,
+        subject
+      } = req.query
+      const sort = { point: -1, timeSpent: -1 }
+      const { id } = req.params
+      page = +page || 1
+      perPage = +perPage || 10
+      const skip = (page - 1) * perPage
+      const search = { ...req.query }
+      let pipe = {}
+      pipe.examId = ObjectId(id)
+      if (startTime) {
+        pipe.createdAt = { $gte: startTime }
+      }
+      if (endTime) {
+        pipe.createdAt = { ...pipe.createdAt, $lte: endTime }
+      }
+      if (subject) {
+        pipe.subject = subject
+      } else {
+        pipe.subject = { $lte: 8 }
+      }
+      delete search.page
+      delete search.perPage
+      delete search.sort
+      delete search.startTime
+      delete search.endTime
+      delete search.subject
+      Object.keys(search).forEach(key => {
+        const value = search[key]
+        const pathType = (History.schema.path(key) || {}).instance || ''
+        if (pathType.toLowerCase() === 'objectid') {
+          pipe[key] = value ? ObjectId(value) : { $exists: false }
+        } else if (pathType === 'Number') {
+          pipe[key] = +value ? +value : 0
+        } else if (pathType === 'String' && value.constructor === String) {
+          pipe[key] = serverHelper.formatRegex(value)
+        } else {
+          pipe[key] = value
+        }
+      })
+      const data = await historyRepo.getListHistoryBXH(pipe, perPage, skip, sort)
+      const total = await historyRepo.getCount(pipe)
+      return res.status(httpCode.SUCCESS).json({
+        data,
+        page,
+        perPage,
+        sort,
+        total
+      })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   const getListToeic = async (req, res) => {
     try {
       let {
@@ -238,12 +299,13 @@ module.exports = (container) => {
               rsTypeQuestion
             } = serverHelper.caculatorResultExam(body.listAnswer, exam.questionIds, exam.listTypeQuestion)
             body.numberQuestionRight = numRight
-            body.point = numRight / exam.numberQuestion
+            body.point = numRight / exam.numberQuestion * 10
             body.rsTypeQuestion = rsTypeQuestion
           } else {
             body.cateToeic = exam.cateToeic
             body.numberListeningQuestionRight = serverHelper.caculatorResultToeic(body.listListeningAnswer, exam.listeningQuestion)
             body.numberReadingQuestionRight = serverHelper.caculatorResultToeic(body.listListeningAnswer, exam.listeningQuestion)
+            body.point = serverHelper.caculatorPointExam(body.numberListeningQuestionRight, exam.numberListening, body.numberReadingQuestionRight, exam.numberReading)
             const rsTypeQuestion = []
             for (const item of exam.listTypeQuestion) {
               const tmp = {
@@ -301,6 +363,7 @@ module.exports = (container) => {
   }
 
   return {
+    getListBHXByExamId,
     getListHistory,
     getHistoryById,
     removeHistoryById,
