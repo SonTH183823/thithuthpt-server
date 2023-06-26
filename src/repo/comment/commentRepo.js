@@ -8,6 +8,9 @@ module.exports = container => {
   const getCommentById = (id) => {
     return Comment.findById(id)
   }
+  const getAllUserId = (pipe) => {
+    return Comment.aggregate(pipe)
+  }
   const deleteComment = (id) => {
     return Comment.findByIdAndRemove(id, { useFindAndModify: false })
   }
@@ -45,6 +48,7 @@ module.exports = container => {
     updateComment,
     checkIdExist,
     getCount,
-    getComment
+    getComment,
+    getAllUserId
   }
 }

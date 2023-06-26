@@ -15,12 +15,9 @@ module.exports = (container) => {
       let {
         page,
         perPage,
-        sort,
-        ids,
-        startTime,
-        endTime,
-        title
+        sort
       } = req.query
+      const { userId } = req.user
       page = +page || 1
       perPage = +perPage || 10
       sort = +sort === 0 ? { createdAt: 1 } : +sort || { createdAt: -1 }
@@ -30,29 +27,9 @@ module.exports = (container) => {
         search.slug = serverHelper.stringToSlug(search.slug)
       }
       const pipe = {}
-      if (title) {
-        pipe.slug = new RegExp(serverHelper.stringToSlug(title).replace(/\\/g, '\\\\'), 'gi')
-      }
-      if (ids) {
-        if (ids.constructor === Array) {
-          pipe._id = { $in: ids }
-        } else if (ids.constructor === String) {
-          pipe._id = { $in: ids.split(',') }
-        }
-      }
-      if (startTime) {
-        pipe.createdAt = { $gte: startTime }
-      }
-      if (endTime) {
-        pipe.createdAt = { ...pipe.createdAt, $lte: endTime }
-      }
-      delete search.ids
       delete search.page
       delete search.perPage
       delete search.sort
-      delete search.startTime
-      delete search.endTime
-      delete search.title
 
       Object.keys(search).forEach(key => {
         const value = search[key]
@@ -67,6 +44,7 @@ module.exports = (container) => {
           pipe[key] = value
         }
       })
+      pipe.userId = ObjectId(userId)
       const data = await notificationRepo.getListNotification(pipe, perPage, skip, sort)
       const total = await notificationRepo.getCount(pipe)
       return res.status(httpCode.SUCCESS).json({
@@ -286,7 +264,7 @@ module.exports = (container) => {
   const markAllNotificationViewed = async (req, res) => {
     try {
       const { userId } = req.user
-      await notificationRepo.updateNotification({ userId: ObjectId(userId) }, { isViewed: 0 })
+      await notificationRepo.updateNotification(ObjectId(userId), { isViewed: 0 })
       return res.status(httpCode.SUCCESS).json({ ok: true })
     } catch (e) {
       logger.e(e)

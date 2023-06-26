@@ -33,7 +33,7 @@ module.exports = container => {
       obj.name = obj.fullname
     }
     if (!obj.uid && obj.sub) obj.uid = obj.sub
-    const {
+    let {
       versionCode,
       fcmToken,
       name,
@@ -68,10 +68,11 @@ module.exports = container => {
       if (name && !user.name) {
         update.name = name
         update.username = serverHelper.stringToSnakeCase(name)
-      }
+      } else name = user.name
       if (avatar && !user.avatar) {
+        avatar = user.avatar
         update.avatar = avatar
-      }
+      } else avatar = user.avatar
       userResponse = await userRepo.findOneAndUpdate({ uid }, {
         $set: {
           ...update,

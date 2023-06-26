@@ -10,10 +10,15 @@ module.exports = (joi, mongoose, {
     directLink: joi.string(),
     updatedAt: joi.number(),
     userId: joi.string().required(),
+    userPushId: joi.string(),
     type: joi.number()
   })
   const notificationSchema = joi2MongoSchema(notificationJoi, {
     userId: {
+      type: ObjectId,
+      ref: 'user'
+    },
+    userPushId: {
       type: ObjectId,
       ref: 'user'
     }

@@ -27,7 +27,7 @@ module.exports = container => {
     return Notification.aggregate(pipe)
   }
   const getListNotification = (pipe, limit, skip, sort) => {
-    return Notification.find(pipe).limit(limit).skip(skip).sort(sort).populate('userId')
+    return Notification.find(pipe).limit(limit).skip(skip).sort(sort).populate('userId userPushId')
   }
   const getNotificationNoPaging = (pipe) => {
     return Notification.find(pipe).populate('category tags')

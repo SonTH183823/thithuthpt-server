@@ -1,10 +1,12 @@
 const { initDI } = require('./di')
 const config = require('./config')
+const { notification } = config
 const logger = require('./logger')
 const middleware = require('./middleware')
 const firebaseAdmin = require('firebase-admin')
 const server = require('./server')
 const models = require('./models')
+const listener = require('./listener')
 const lang = require('./lang')
 const controller = require('./controller')
 const { connect } = require('./database')
@@ -21,10 +23,10 @@ mediator.once('di.ready', container => {
   mediator.once('db.ready', db => {
     logger.d('db.ready, starting server')
     firebaseAdmin.initializeApp({
-      credential: firebaseAdmin.credential.cert(config.firebaseConfig.serviceAccountPath),
-      databaseURL: config.firebaseConfig.databaseURL
+      credential: firebaseAdmin.credential.cert(config.firebaseConfig.serviceAccountPath)
     })
     container.registerValue('firebaseAdmin', firebaseAdmin)
+    container.registerValue('notification', notification(container))
     container.registerValue('db', db)
     container.registerValue('models', models(container))
     const repository = repo.connect(container)
@@ -33,6 +35,7 @@ mediator.once('di.ready', container => {
     container.registerValue('middleware', middleware(container))
     server.start(container).then(app => {
       logger.d('Server started at port ', app.address().port)
+      listener(container)
     })
   })
   connect(container, mediator)

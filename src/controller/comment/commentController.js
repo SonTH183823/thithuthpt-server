@@ -1,7 +1,8 @@
 module.exports = (container) => {
   const logger = container.resolve('logger')
-  const { httpCode } = container.resolve('config')
-  const { commentRepo, serverHelper } = container.resolve('repo')
+  const { handlePushFCM } = container.resolve('notification')
+  const { httpCode, serverHelper } = container.resolve('config')
+  const { commentRepo, userRepo, notificationRepo } = container.resolve('repo')
   const ObjectId = container.resolve('ObjectId')
   const {
     schemaValidator, schemas: {
@@ -93,7 +94,9 @@ module.exports = (container) => {
   }
   const createComment = async (req, res) => {
     try {
-      const data = req.body
+      const { postId, userId, content, imageAttach, videoAttach, typePost, title } = req.body
+      const data = { postId, userId, content, imageAttach, videoAttach }
+      const userComment = req.user
       if (data) {
         const {
           error, value
@@ -103,6 +106,30 @@ module.exports = (container) => {
           return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
         }
         const rate = await commentRepo.createComment(value)
+        const ids = await commentRepo.getAllUserId([
+          { $match: { postId: ObjectId(postId) } },
+          { $group: { _id: '$userId' } }
+        ])
+        const listUser = await userRepo.getUserNoPaging({ _id: { $in: ids } }).lean()
+        for (const user of listUser) {
+          const x = user._id.toString()
+          if (user && x !== userId) {
+            const { notiData, messages } = serverHelper.genDataNotification(typePost, user, title, postId, userComment)
+            notiData.userId = user._id.toString()
+            notiData.userPushId = userId
+            const {
+              error, value
+            } = await schemaValidator(notiData, 'Notification')
+            if (error) {
+              logger.e(error)
+              return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
+            }
+            await notificationRepo.createNotification(value)
+            if (user.fcmToken) {
+              await handlePushFCM(messages)
+            }
+          }
+        }
         return res.status(httpCode.CREATED).json(rate)
       }
       return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })

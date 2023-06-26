@@ -1,4 +1,5 @@
 require('dotenv').config()
+const slugify = require('slugify')
 const serverSettings = {
   port: process.env.PORT || 8003,
   basePath: process.env.BASE_PATH_WEB || '/web',
@@ -19,6 +20,12 @@ const eventConfig = {
 
 const deviceTypes = {
   ANDROID: 1, IOS: 2, WEB: 3, SUPER_APP: 4
+}
+const typePostConfig = {
+  EXAM: 1,
+  QUESTION: 2,
+  DOCUMENT: 3,
+  NEWS: 4
 }
 const httpCode = {
   SUCCESS: 200,
@@ -61,8 +68,8 @@ const dbSettings = {
   user: process.env.DB_USER || '',
   pass: process.env.DB_PASS || '',
   repl: process.env.DB_REPLS || '',
-  // servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['192.168.221.27:27017']
-  servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['127.0.0.1:27017']
+  servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['192.168.221.27:27017']
+  // servers: (process.env.DB_SERVERS) ? process.env.DB_SERVERS.split(',') : ['127.0.0.1:27017']
 }
 const serverHelper = function () {
   const jwt = require('jsonwebtoken')
@@ -73,6 +80,10 @@ const serverHelper = function () {
 
   function decodeToken (token) {
     return jwt.decode(token)
+  }
+
+  function strToSlug (str) {
+    return slugify(str, '-')
   }
 
   function caculatorPointExam (numLisRight, numLis, numReadRight, numRead) {
@@ -348,6 +359,61 @@ const serverHelper = function () {
     return true
   }
 
+  const genDataNotification = (typePost, user, title, postId, userComment) => {
+    const name = userComment.name || userComment.phoneNumber
+    const messages = {
+      notification: {
+        title: `${userComment.name} đã bình luận trong một `,
+        body: 'Bạn có thông báo mới.'
+      },
+      token: user.fcmToken
+    }
+    let notiData = {
+      isRead: 0,
+      isViewed: 0,
+      type: 1
+    }
+    switch (typePost) {
+      case typePostConfig.EXAM : {
+        notiData = {
+          ...notiData,
+          content: `<div> <strong>${userComment.name}</strong> đã bình luận trong đề thi <strong>${title}</strong></div>`,
+          directLink: `/exam/${strToSlug(title)}-${postId}`
+        }
+        messages.notification.title += 'đề thi.'
+        break
+      }
+      case typePostConfig.DOCUMENT : {
+        notiData = {
+          ...notiData,
+          content: `<div> <strong>${userComment.name}</strong> đã bình luận trong tài liệu <strong>${title}</strong></div>`,
+          directLink: `/documents/${strToSlug(title)}-${postId}`
+        }
+        messages.notification.title += 'tài liệu.'
+        break
+      }
+      case typePostConfig.NEWS : {
+        notiData = {
+          ...notiData,
+          content: `<div> <strong>${userComment.name}</strong> đã bình luận trong tin tức <strong>${title}</strong></div>`,
+          directLink: `/news/${strToSlug(title)}-${postId}`
+        }
+        messages.notification.title += 'tin tức.'
+        break
+      }
+      case typePostConfig.QUESTION : {
+        notiData = {
+          ...notiData,
+          content: `<div> <strong>${userComment.name}</strong> đã bình luận trong câu hỏi mà bạn theo dõi</div>`,
+          directLink: `/question/${postId}`
+        }
+        messages.notification.title += 'câu hỏi.'
+        break
+      }
+    }
+    return { notiData, messages }
+  }
+
   return {
     generateHash,
     decodeToken,
@@ -366,9 +432,11 @@ const serverHelper = function () {
     verifyTokenCMS,
     caculatorResultExam,
     caculatorResultToeic,
-    caculatorPointExam
+    caculatorPointExam,
+    genDataNotification
   }
 }
+
 module.exports = {
   dbSettings,
   serverHelper: serverHelper(),
