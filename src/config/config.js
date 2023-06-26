@@ -363,7 +363,7 @@ const serverHelper = function () {
     const name = userComment.name || userComment.phoneNumber
     const messages = {
       notification: {
-        title: `${userComment.name} đã bình luận trong một `,
+        title: `${name} đã bình luận trong một `,
         body: 'Bạn có thông báo mới.'
       },
       token: user.fcmToken
@@ -377,37 +377,37 @@ const serverHelper = function () {
       case typePostConfig.EXAM : {
         notiData = {
           ...notiData,
-          content: `<div> <strong>${userComment.name}</strong> đã bình luận trong đề thi <strong>${title}</strong></div>`,
+          content: `<div> <strong>${name}</strong> đã bình luận trong đề thi <strong>${title}</strong></div>`,
           directLink: `/exam/${strToSlug(title)}-${postId}`
         }
-        messages.notification.title += 'đề thi.'
+        messages.notification.title += 'đề thi bạn theo dõi.'
         break
       }
       case typePostConfig.DOCUMENT : {
         notiData = {
           ...notiData,
-          content: `<div> <strong>${userComment.name}</strong> đã bình luận trong tài liệu <strong>${title}</strong></div>`,
+          content: `<div> <strong>${name}</strong> đã bình luận trong tài liệu <strong>${title}</strong></div>`,
           directLink: `/documents/${strToSlug(title)}-${postId}`
         }
-        messages.notification.title += 'tài liệu.'
+        messages.notification.title += 'tài liệu bạn theo dõi.'
         break
       }
       case typePostConfig.NEWS : {
         notiData = {
           ...notiData,
-          content: `<div> <strong>${userComment.name}</strong> đã bình luận trong tin tức <strong>${title}</strong></div>`,
+          content: `<div> <strong>${name}</strong> đã bình luận trong tin tức <strong>${title}</strong></div>`,
           directLink: `/news/${strToSlug(title)}-${postId}`
         }
-        messages.notification.title += 'tin tức.'
+        messages.notification.title += 'tin tức bạn theo dõi.'
         break
       }
       case typePostConfig.QUESTION : {
         notiData = {
           ...notiData,
-          content: `<div> <strong>${userComment.name}</strong> đã bình luận trong câu hỏi mà bạn theo dõi</div>`,
+          content: `<div> <strong>${name}</strong> đã bình luận trong câu hỏi mà bạn theo dõi</div>`,
           directLink: `/question/${postId}`
         }
-        messages.notification.title += 'câu hỏi.'
+        messages.notification.title += 'câu hỏi bạn theo dõi.'
         break
       }
     }

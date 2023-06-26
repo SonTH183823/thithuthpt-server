@@ -264,7 +264,7 @@ module.exports = (container) => {
   const markAllNotificationViewed = async (req, res) => {
     try {
       const { userId } = req.user
-      await notificationRepo.updateNotification(ObjectId(userId), { isViewed: 0 })
+      await notificationRepo.updateMany({ userId: ObjectId(userId) }, { isViewed: 1 })
       return res.status(httpCode.SUCCESS).json({ ok: true })
     } catch (e) {
       logger.e(e)
