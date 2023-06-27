@@ -414,6 +414,53 @@ const serverHelper = function () {
     return { notiData, messages }
   }
 
+  const genDataAwards = (user, point, type) => {
+    const messages = {
+      notification: {
+        title: `Bạn nhận được ${point} Points `,
+        body: 'Bạn có thông báo mới.'
+      },
+      token: user.fcmToken
+    }
+    let notiData = {
+      isRead: 0,
+      isViewed: 0,
+      userId: user._id.toString(),
+      type: 2,
+      directLink: '/profile/me'
+    }
+    switch (type) {
+      //loginDaily
+      case 1: {
+        messages.notification.title += 'từ hoạt động hàng ngày.'
+        notiData = {
+          ...notiData,
+          content: `<div>Bạn nhận được <strong>${point} Points</strong> từ hoạt động hàng ngày.</div>`
+        }
+        break
+      }
+      // finishExam
+      case 2: {
+        messages.notification.title += 'vì đã hoàn thành bài thi.'
+        notiData = {
+          ...notiData,
+          content: `<div>Bạn nhận được <strong>${point} Points</strong> vì đã hoàn thành bài thi.</div>`
+        }
+        break
+      }
+      // commentHighVote
+      case 3: {
+        messages.notification.title += 'từ bình luận hữu ích.'
+        notiData = {
+          ...notiData,
+          content: `<div>Bạn nhận được <strong>${point} Points</strong> từ bình luận hữu ích.</div>`
+        }
+        break
+      }
+    }
+    return { notiData, messages }
+  }
+
   return {
     generateHash,
     decodeToken,
@@ -433,7 +480,8 @@ const serverHelper = function () {
     caculatorResultExam,
     caculatorResultToeic,
     caculatorPointExam,
-    genDataNotification
+    genDataNotification,
+    genDataAwards
   }
 }
 

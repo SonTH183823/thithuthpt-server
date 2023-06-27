@@ -1,7 +1,8 @@
 module.exports = (container) => {
   const logger = container.resolve('logger')
   const { httpCode, serverHelper } = container.resolve('config')
-  const { historyRepo, examRepo } = container.resolve('repo')
+  const { historyRepo, examRepo, userRepo, notificationRepo } = container.resolve('repo')
+  const { handlePushFCM } = container.resolve('notification')
   const ObjectId = container.resolve('ObjectId')
   const {
     schemaValidator,
@@ -334,6 +335,22 @@ module.exports = (container) => {
             return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
           }
           const item = await historyRepo.createHistory(value)
+          const user = await userRepo.getUserById(ObjectId(userId))
+          await userRepo.updateUser(ObjectId(userId), { pointCredits: user.pointCredits + 5 })
+          const { notiData, messages } = serverHelper.genDataAwards(user, 5, 2)
+          if (userId) {
+            const {
+              error, value
+            } = await schemaValidator(notiData, 'Notification')
+            if (error) {
+              logger.e(error)
+              return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
+            }
+            await notificationRepo.createNotification(value)
+          }
+          if (user.fcmToken) {
+            await handlePushFCM(messages)
+          }
           return res.status(httpCode.CREATED).json(item)
         }
         return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
