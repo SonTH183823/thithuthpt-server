@@ -460,6 +460,76 @@ const serverHelper = function () {
     }
     return { notiData, messages }
   }
+  const genDataReact = (userComment, userReact, status, title, postId, typePost) => {
+    const messages = {
+      notification: {
+        title: `${userReact.name} đã bày tỏ cảm xúc `,
+        body: 'Bạn có thông báo mới.'
+      },
+      token: userComment.fcmToken
+    }
+    let notiData = {
+      isRead: 0,
+      isViewed: 0,
+      userId: userComment._id.toString(),
+      type: 3
+    }
+    switch (status) {
+      // like
+      case 1: {
+        messages.notification.title += 'Hữu ích vào bình luận của bạn.'
+        notiData = {
+          ...notiData,
+          content: `<div><strong>${userReact.name}</strong> đã bày tỏ cảm xúc <strong>Hữu ích </strong>vào bình luận của bạn trong một </div>`
+        }
+        break
+      }
+      // dislike
+      case 2: {
+        messages.notification.title += 'Không hữu ích vào bình luận của bạn.'
+        notiData = {
+          ...notiData,
+          content: `<div><strong>${userReact.name}</strong> đã bày tỏ cảm xúc <strong>Không hữu ích </strong>vào bình luận của bạn trong một </div>`
+        }
+        break
+      }
+    }
+    switch (typePost) {
+      case typePostConfig.EXAM : {
+        notiData = {
+          ...notiData,
+          directLink: `/exam/${strToSlug(title)}-${postId}`,
+          content: notiData.content + 'đề thi'
+        }
+        break
+      }
+      case typePostConfig.DOCUMENT : {
+        notiData = {
+          ...notiData,
+          directLink: `/documents/${strToSlug(title)}-${postId}`,
+          content: notiData.content + 'tài liệu'
+        }
+        break
+      }
+      case typePostConfig.NEWS : {
+        notiData = {
+          ...notiData,
+          directLink: `/news/${strToSlug(title)}-${postId}`,
+          content: notiData.content + 'tin tức'
+        }
+        break
+      }
+      case typePostConfig.QUESTION : {
+        notiData = {
+          ...notiData,
+          directLink: `/question/${postId}`,
+          content: notiData.content + 'câu hỏi'
+        }
+        break
+      }
+    }
+    return { notiData, messages }
+  }
 
   return {
     generateHash,
@@ -481,7 +551,8 @@ const serverHelper = function () {
     caculatorResultToeic,
     caculatorPointExam,
     genDataNotification,
-    genDataAwards
+    genDataAwards,
+    genDataReact
   }
 }
 

@@ -1,7 +1,8 @@
 module.exports = (container) => {
   const logger = container.resolve('logger')
-  const { httpCode } = container.resolve('config')
-  const { commentStatusRepo, serverHelper } = container.resolve('repo')
+  const { httpCode, serverHelper } = container.resolve('config')
+  const { commentStatusRepo, userRepo, notificationRepo } = container.resolve('repo')
+  const { handlePushFCM } = container.resolve('notification')
   const ObjectId = container.resolve('ObjectId')
   const {
     schemaValidator, schemas: {
@@ -78,7 +79,8 @@ module.exports = (container) => {
   }
   const createCommentStatus = async (req, res) => {
     try {
-      const data = req.body
+      const { commentId, userId, status, userCmtId, title, postId, typePost } = req.body
+      const data = { commentId, userId, status }
       if (data) {
         const {
           error, value
@@ -88,6 +90,23 @@ module.exports = (container) => {
           return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
         }
         const rate = await commentStatusRepo.createCommentStatus(value)
+        if (userCmtId !== userId) {
+          const userComment = await userRepo.getUserById(ObjectId(userCmtId))
+          const userReact = await userRepo.getUserById(ObjectId(userId))
+          const {
+            notiData,
+            messages
+          } = serverHelper.genDataReact(userComment, userReact, status, title, postId, typePost)
+          const {
+            error, value
+          } = await schemaValidator(notiData, 'Notification')
+          if (error) {
+            logger.e(error)
+            return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
+          }
+          await notificationRepo.createNotification(value)
+          await handlePushFCM(messages)
+        }
         return res.status(httpCode.CREATED).json(rate)
       }
       return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
