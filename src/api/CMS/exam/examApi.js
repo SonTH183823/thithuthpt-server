@@ -7,6 +7,7 @@ module.exports = (app, container) => {
   app.get(`${basePathCMS}/exam`, verifyTokenCMS, examController.getListExam)
   app.get(`${basePathCMS}/examToeic`, verifyTokenCMS, examController.getListToeic)
   app.get(`${basePathCMS}/exam/:id`, verifyTokenCMS, examController.getExamById)
+  app.get(`${basePathCMS}/exam/question/:id`, verifyTokenCMS, examController.getListQuestionExam)
   app.get(`${basePathCMS}/examToeic/question/:id`, verifyTokenCMS, examController.getListQuestionExam)
   app.post(`${basePathCMS}/exam`, verifyTokenCMS, examController.createExam)
   app.put(`${basePathCMS}/exam/question/:id`, verifyTokenCMS, examController.updateQuestion)

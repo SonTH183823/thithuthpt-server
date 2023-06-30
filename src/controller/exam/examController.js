@@ -364,9 +364,15 @@ module.exports = (container) => {
         const { error, value } = schemaValidator(va, 'Question')
         if (error) {
           return res.status(httpCode.BAD_REQUEST).json({ msg: 'loi roi' })
+        } else {
+          if (value._id) {
+            const a = questionRepo.updateQuestion(ObjectId(value._id), { ...value })
+            qq.push(a)
+          } else {
+            const v = questionRepo.createQuestion(value)
+            qq.push(v)
+          }
         }
-        const v = questionRepo.createQuestion(value)
-        qq.push(v)
       }
       const aa = await Promise.all(qq)
       const ids = []
@@ -393,9 +399,16 @@ module.exports = (container) => {
         const { error, value } = schemaValidator(va, 'Question')
         if (error) {
           return res.status(httpCode.BAD_REQUEST).json({ msg: 'loi roi' })
+        } else {
+          if (value._id) {
+            const a = questionRepo.updateQuestion(ObjectId(value._id), { ...value })
+            qq.push(a)
+          } else {
+            const v = questionRepo.createQuestion(value)
+            qq.push(v)
+          }
         }
-        const v = questionRepo.createQuestion(value)
-        qq.push(v)
+
       }
       const aa = await Promise.all(qq)
       const ids = []
