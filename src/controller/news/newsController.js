@@ -210,6 +210,6 @@ module.exports = (container) => {
     getNewsById,
     removeNewsById,
     updateNewsById,
-    createNews
+    createNews,
   }
 }

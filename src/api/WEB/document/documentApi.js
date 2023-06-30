@@ -8,4 +8,5 @@ module.exports = (app, container) => {
   app.get(`${basePath}/document/related/:id`, verifyToken, documentController.getDocumentRelated)
   app.get(`${basePath}/newestDocument`, verifyToken, documentController.getNewestDocument)
   app.get(`${basePath}/document/:id`, verifyToken, documentController.getDocumentById)
+  app.put(`${basePath}/countViewDocument/:id`, verifyToken, documentController.updateViewTestDoc)
 }

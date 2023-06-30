@@ -246,6 +246,29 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+  const updateViewTestExam = async (req, res) => {
+    try {
+      const { id } = req.params
+      const data = req.body
+      if (id && id.length === 24) {
+        const item = await examRepo.getExamById(id)
+        if (item) {
+          const dt = { ...item.toObject() }
+          if (data.type === 'view') {
+            dt.numberView += 1
+          } else if (data.type === 'test') {
+            dt.numberTest += 1
+          }
+          const a = await examRepo.updateExam(id, dt)
+          return res.status(httpCode.SUCCESS).json({ ok: true })
+        }
+      }
+      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   const removeExamById = async (req, res) => {
     try {
       const { id } = req.params
@@ -408,7 +431,6 @@ module.exports = (container) => {
             qq.push(v)
           }
         }
-
       }
       const aa = await Promise.all(qq)
       const ids = []
@@ -460,6 +482,7 @@ module.exports = (container) => {
     getListQuestionExam,
     getListToeic,
     updateQuestionToeic,
-    getTotalExam
+    getTotalExam,
+    updateViewTestExam
   }
 }

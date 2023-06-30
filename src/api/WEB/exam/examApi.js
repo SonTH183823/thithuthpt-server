@@ -10,4 +10,5 @@ module.exports = (app, container) => {
   app.get(`${basePath}/exam/question/:id`, verifyToken, examController.getListQuestionExam)
   app.get(`${basePath}/exam/related/:id`, verifyToken, examController.getExamRelated)
   app.get(`${basePath}/exam/:id`, verifyToken, examController.getExamById)
+  app.put(`${basePath}/countTestView/:id`, verifyToken, examController.updateViewTestExam)
 }

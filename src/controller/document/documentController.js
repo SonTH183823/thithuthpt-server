@@ -190,6 +190,27 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
+  const updateViewTestDoc = async (req, res) => {
+    try {
+      const { id } = req.params
+      if (id && id.length === 24) {
+        const item = await documentRepo.getDocumentById(id)
+        if (item) {
+          const dt = { ...item.toObject() }
+          dt.numberView += 1
+          await documentRepo.updateDocument(id, dt)
+          return res.status(httpCode.SUCCESS).json({ ok: true })
+        }
+      }
+      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
+    } catch (e) {
+      logger.e(e)
+      if (e.code === 11000) {
+        return res.status(httpCode.BAD_REQUEST).json({ msg: 'Tiêu đề đã tồn tại!' })
+      }
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
   const createDocument = async (req, res) => {
     try {
       const { username } = req.userCMS
@@ -224,6 +245,7 @@ module.exports = (container) => {
     getDocumentById,
     removeDocumentById,
     updateDocumentById,
+    updateViewTestDoc,
     createDocument,
     getDocumentRelated,
     getNewestDocument
