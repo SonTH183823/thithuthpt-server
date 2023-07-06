@@ -379,9 +379,33 @@ module.exports = (container) => {
     }
   }
 
+  const getStatisticalHistory = async (req, res) => {
+    const { userId } = req.user
+    const { isToeic } = req.query
+    try {
+      let pipe = {}
+      if (isToeic) {
+        pipe.subject = 9
+      } else {
+        pipe.subject = { $lte: 8 }
+      }
+      const histories = await historyRepo.findHistory({ userId: ObjectId(userId), ...pipe })
+      if (histories) {
+        return res.status(httpCode.SUCCESS).json({
+          data: histories
+        })
+      }
+      return res.status(httpCode.BAD_REQUEST).json({ msg: 'BAD REQUEST' })
+    } catch (e) {
+      logger.e(e)
+      res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
+    }
+  }
+
   return {
     getListBHXByExamId,
     getListHistory,
+    getStatisticalHistory,
     getHistoryById,
     removeHistoryById,
     updateHistoryById,
