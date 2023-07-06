@@ -381,11 +381,11 @@ module.exports = (container) => {
 
   const getStatisticalHistory = async (req, res) => {
     const { userId } = req.user
-    const { isToeic } = req.query
+    const { subject } = req.query
     try {
       let pipe = {}
-      if (isToeic) {
-        pipe.subject = 9
+      if (subject) {
+        pipe.subject = subject
       } else {
         pipe.subject = { $lte: 8 }
       }
