@@ -292,9 +292,10 @@ module.exports = (container) => {
       const { userId } = req.user
       const body = req.body
       if (body && body.examId) {
-        const exam = await examRepo.getExamQuestion(ObjectId(body.examId))
+        let exam = await examRepo.getExamQuestion(ObjectId(body.examId))
         if (exam) {
-          if (body.subject !== 9) {
+          exam = exam.toObject()
+          if (exam.subject !== 9) {
             const {
               numRight,
               rsTypeQuestion
@@ -305,7 +306,7 @@ module.exports = (container) => {
           } else {
             body.cateToeic = exam.cateToeic
             body.numberListeningQuestionRight = serverHelper.caculatorResultToeic(body.listListeningAnswer, exam.listeningQuestion)
-            body.numberReadingQuestionRight = serverHelper.caculatorResultToeic(body.listListeningAnswer, exam.listeningQuestion)
+            body.numberReadingQuestionRight = serverHelper.caculatorResultToeic(body.listReadingAnswer, exam.readingQuestion)
             body.point = serverHelper.caculatorPointExam(body.numberListeningQuestionRight, exam.numberListening, body.numberReadingQuestionRight, exam.numberReading)
             const rsTypeQuestion = []
             for (const item of exam.listTypeQuestion) {

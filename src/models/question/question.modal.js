@@ -31,7 +31,7 @@ module.exports = (joi, mongoose, {
     active: joi.number().valid(0, 1).default(1),
     delete: joi.number().valid(0, 1).default(0),
     updatedAt: joi.number(),
-    questions: joi.array().items(joi.string()),
+    questions: joi.array().items(joi.string())
   })
   const questionSchema = joi2MongoSchema(questionJoi, {
     category: [{
