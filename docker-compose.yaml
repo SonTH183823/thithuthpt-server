@@ -1,0 +1,43 @@
+version: '3.2'
+
+services:
+  mongodb:
+    image: mongo:latest
+    ports:
+      - '8016:27017'
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=carpla
+      - MONGO_INITDB_ROOT_PASSWORD=9iaj0gYZQ
+    command: mongod
+    volumes:
+      - /media/NewHDD/erp/mongo-data:/data/db
+    networks:
+      - sondz
+    restart: always
+
+  appserver:
+    image: "server:latest"
+    ports:
+      - '8200:3000'
+    environment:
+      PORT: '3000'
+      TZ: 'Asia/Bangkok'
+      DB_SERVERS: 'mongodb:27017'
+      CLOUD_NAME: "dxjrsffeo"
+      API_KEY_CLOUDINARY: "145441169219581"
+      API_SECRET_CLOUDINARY: "KQ8npWR4yLqOfK9cLQieU6W_bMs"
+
+    networks:
+      - sondz
+    restart: always
+  web:
+    image: "web:latest"
+    ports:
+      - '8201:3000'
+    environment:
+      PORT: '3000'
+      TZ: 'Asia/Bangkok'
+    restart: always
+networks:
+  sondz:
+    driver: bridge

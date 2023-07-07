@@ -1,1 +1,1 @@
-git pull && docker build . -t carpla-news
+git pull && docker build . -t server
