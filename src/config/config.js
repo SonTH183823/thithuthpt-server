@@ -100,7 +100,7 @@ const serverHelper = function () {
       if (numReadRight > 2) pR = (numReadRight - 1) * 5
       return pR + pL
     } else {
-      return Math.floor((numLisRight / numLis + numReadRight / numRead) * 49.5)
+      return Math.floor((numLisRight / numLis + numReadRight / numRead) * 495)
     }
   }
 
