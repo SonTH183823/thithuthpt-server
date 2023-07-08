@@ -472,7 +472,8 @@ const serverHelper = function () {
       isRead: 0,
       isViewed: 0,
       userId: userComment._id.toString(),
-      type: 3
+      type: 3,
+      userPushId: userReact._id.toString()
     }
     switch (status) {
       // like

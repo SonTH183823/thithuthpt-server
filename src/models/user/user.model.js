@@ -15,7 +15,7 @@ module.exports = (joi, mongoose) => {
     address: { type: String, allow: '' },
     school: { type: String, allow: '' },
     bio: { type: String, allow: '' },
-    pointCredits: { type: Number, default: 51 }
+    pointCredits: { type: Number, default: 0 }
   })
   return mongoose.model('user', userSchema)
 }

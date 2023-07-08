@@ -10,7 +10,7 @@ module.exports = (container) => {
       History
     }
   } = container.resolve('models')
-
+  
   const getListHistory = async (req, res) => {
     try {
       let {
@@ -47,7 +47,7 @@ module.exports = (container) => {
       delete search.startTime
       delete search.endTime
       delete search.subject
-
+      
       Object.keys(search).forEach(key => {
         const value = search[key]
         const pathType = (History.schema.path(key) || {}).instance || ''
@@ -163,7 +163,7 @@ module.exports = (container) => {
       delete search.sort
       delete search.startTime
       delete search.endTime
-
+      
       Object.keys(search).forEach(key => {
         const value = search[key]
         const pathType = (History.schema.path(key) || {}).instance || ''
@@ -337,8 +337,10 @@ module.exports = (container) => {
           }
           const item = await historyRepo.createHistory(value)
           const user = await userRepo.getUserById(ObjectId(userId))
-          await userRepo.updateUser(ObjectId(userId), { pointCredits: user.pointCredits + 5 })
-          const { notiData, messages } = serverHelper.genDataAwards(user, 5, 2)
+          let pAdd = exam.subject !== 9 ? Math.round(body.point) : Math.round(body.point / 10)
+          if (pAdd > 10) pAdd = Math.round(pAdd / 10)
+          await userRepo.updateUser(ObjectId(userId), { pointCredits: user.pointCredits + pAdd })
+          const { notiData, messages } = serverHelper.genDataAwards(user, pAdd, 2)
           if (userId) {
             const {
               error, value
@@ -379,7 +381,7 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
-
+  
   const getStatisticalHistory = async (req, res) => {
     const { userId } = req.user
     const { subject } = req.query
@@ -402,7 +404,7 @@ module.exports = (container) => {
       res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'UNKNOWN ERROR' })
     }
   }
-
+  
   return {
     getListBHXByExamId,
     getListHistory,
