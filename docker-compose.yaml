@@ -4,10 +4,10 @@ services:
   mongodb:
     image: mongo:latest
     ports:
-      - '8016:27017'
+      - '8216:27017'
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=carpla
-      - MONGO_INITDB_ROOT_PASSWORD=9iaj0gYZQ
+      - MONGO_INITDB_ROOT_USERNAME=sonth
+      - MONGO_INITDB_ROOT_PASSWORD=sonthdz
     command: mongod
     volumes:
       - /media/NewHDD/erp/mongo-data:/data/db
@@ -23,6 +23,8 @@ services:
       PORT: '3000'
       TZ: 'Asia/Bangkok'
       DB_SERVERS: 'mongodb:27017'
+      DB_USER: 'sonth'
+      DB_PASS: 'sonthdz'
       CLOUD_NAME: "dxjrsffeo"
       API_KEY_CLOUDINARY: "145441169219581"
       API_SECRET_CLOUDINARY: "KQ8npWR4yLqOfK9cLQieU6W_bMs"
@@ -34,6 +36,14 @@ services:
     image: "web:latest"
     ports:
       - '8201:3000'
+    environment:
+      PORT: '3000'
+      TZ: 'Asia/Bangkok'
+    restart: always
+  cms:
+    image: "cms:latest"
+    ports:
+      - '8202:3000'
     environment:
       PORT: '3000'
       TZ: 'Asia/Bangkok'
