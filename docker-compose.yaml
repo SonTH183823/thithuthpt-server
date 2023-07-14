@@ -1,7 +1,7 @@
 version: '3.2'
 
 services:
-  mongodb:
+  mongodbSonth:
     image: mongo:latest
     ports:
       - '8216:27017'
@@ -9,8 +9,6 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=sonth
       - MONGO_INITDB_ROOT_PASSWORD=sonthdz
     command: mongod
-    volumes:
-      - /media/NewHDD/erp/mongo-data:/data/db
     networks:
       - sondz
     restart: always
@@ -22,7 +20,7 @@ services:
     environment:
       PORT: '3000'
       TZ: 'Asia/Bangkok'
-      DB_SERVERS: 'mongodb:27017'
+      DB_SERVERS: 'mongodbSonth:27017'
       DB_USER: 'sonth'
       DB_PASS: 'sonthdz'
       CLOUD_NAME: "dxjrsffeo"
