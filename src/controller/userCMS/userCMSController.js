@@ -12,13 +12,13 @@ module.exports = (container) => {
     sessionCMSRepo
   } = container.resolve('repo')
 
-  // userCMSRepo.addUserCMS({
-  //   username: 'admin',
-  //   isAdministrator: 1,
-  //   name: 'Tô Hoài Sơn',
-  //   roles: [1, 2, 3, 4, 5, 6],
-  //   password: serverHelper.encryptPassword('123456')
-  // }).catch(() => {})
+  userCMSRepo.addUserCMS({
+    username: 'admin',
+    isAdministrator: 1,
+    name: 'Tô Hoài Sơn',
+    roles: [1, 2, 3, 4, 5, 6],
+    password: serverHelper.encryptPassword('123456')
+  }).catch(() => {})
 
   const MAX_LOGIN = +process.env.MAX_LOGIN || 2
   const addUserCMS = async (req, res) => {
