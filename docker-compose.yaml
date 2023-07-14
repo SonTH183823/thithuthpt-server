@@ -32,8 +32,8 @@ services:
     networks:
       - sondz
     restart: always
-  web:
-    image: "web:latest"
+  web-sonth:
+    image: "web-sonth:latest"
     ports:
       - '8201:3000'
     environment:
