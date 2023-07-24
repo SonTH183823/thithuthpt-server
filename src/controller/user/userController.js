@@ -100,6 +100,7 @@ module.exports = container => {
       uid,
       fcmToken,
       name,
+      phoneNumber,
       username,
       avatar,
       loginType: loginType.USER
