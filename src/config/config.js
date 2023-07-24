@@ -251,6 +251,29 @@ const serverHelper = function () {
     return str
   }
 
+  function addThumbnailSubject (subject) {
+    switch (subject) {
+      case 1:
+        return 'toan.jpg'
+      case 2:
+        return 'ly.jpg'
+      case 3:
+        return 'hoa.jpg'
+      case 4:
+        return 'sinh.jpg'
+      case 5:
+        return 'anh.jpg'
+      case 6:
+        return 'su.jpg'
+      case 7:
+        return 'dia.jpg'
+      case 8:
+        return 'gdcd.jpg'
+      default:
+        return 'toeic.jpg'
+    }
+  }
+
   function deepCompare (x, y) {
     let i, l, leftChain, rightChain
 
@@ -544,6 +567,7 @@ const serverHelper = function () {
     handleDataBeforeCache,
     stringToSlug,
     stringToSlugSearch,
+    addThumbnailSubject,
     deepCompare,
     encryptPassword,
     genTokenCMS,

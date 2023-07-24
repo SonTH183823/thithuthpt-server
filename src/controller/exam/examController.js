@@ -292,10 +292,14 @@ module.exports = (container) => {
           body.slug = serverHelper.stringToSlug(body.title)
           body.keyword = serverHelper.stringToSlugSearch(body.title)
           body.updatedAt = Math.floor(Date.now() / 1000)
+          const data = body
+          if (!data.thumbnail) {
+            data.thumbnail = serverHelper.addThumbnailSubject(data.subject)
+          }
           const {
             error,
             value
-          } = await schemaValidator(body, 'Exam')
+          } = await schemaValidator(data, 'Exam')
           if (error) {
             logger.e(error)
             return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
@@ -358,10 +362,14 @@ module.exports = (container) => {
         body.slug = serverHelper.stringToSlug(body.title)
         body.keyword = serverHelper.stringToSlugSearch(body.title)
         body.updatedAt = Math.floor(Date.now() / 1000)
+        const data = body
+        if (!data.thumbnail) {
+          data.thumbnail = serverHelper.addThumbnailSubject(data.subject)
+        }
         const {
           error,
           value
-        } = await schemaValidator(body, 'Exam')
+        } = await schemaValidator(data, 'Exam')
         if (error) {
           logger.e(error)
           return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
