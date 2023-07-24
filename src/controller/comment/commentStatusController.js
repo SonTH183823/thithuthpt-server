@@ -105,7 +105,9 @@ module.exports = (container) => {
             return res.status(httpCode.BAD_REQUEST).json({ msg: error.message })
           }
           await notificationRepo.createNotification(value)
-          await handlePushFCM(messages)
+          if (messages.token) {
+            await handlePushFCM(messages)
+          }
         }
         return res.status(httpCode.CREATED).json(rate)
       }

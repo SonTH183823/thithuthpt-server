@@ -489,7 +489,7 @@ const serverHelper = function () {
         title: `${userReact.name} đã bày tỏ cảm xúc `,
         body: 'Bạn có thông báo mới.'
       },
-      token: userComment.fcmToken
+      token: userComment?.fcmToken || ''
     }
     let notiData = {
       isRead: 0,

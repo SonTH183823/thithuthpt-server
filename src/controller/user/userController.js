@@ -83,7 +83,7 @@ module.exports = container => {
       console.log(' dang ky', obj)
       userResponse = await userRepo.createUser({
         avatar,
-        name,
+        name: name || phoneNumber,
         username,
         email,
         provider: trustInfo.provider,
@@ -255,7 +255,6 @@ module.exports = container => {
         domain
       } = value
       const { data: decodeUser, msg } = await verifyFirebase({ token, method, code, domain })
-      console.log('decodeUser&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&', decodeUser)
       if (msg) {
         return res.status(httpCode.BAD_REQUEST).json({ msg })
       }
