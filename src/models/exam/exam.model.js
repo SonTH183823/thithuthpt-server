@@ -31,6 +31,7 @@ module.exports = (joi, mongoose, {
     title: joi.string().required(),
     thumbnail: joi.string().allow(''),
     description: joi.string().allow(''),
+    link: joi.string().allow(''),
     slug: joi.string(),
     updatedAt: joi.number(),
     active: joi.number().valid(0, 1).default(0),
